@@ -1,51 +1,45 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from './components/LoginPage.vue';
-import SignUpPage from './components/SignUpPage.vue';
-import HomePage from './components/UserProfile/HomePage.vue';
-import ChattersPage from './components/ChattersPage.vue';
-import BlugPage from './components/BlugPage.vue';
-import SearchBar from './components/features/SearchBar.vue';
-import PublicProfile from './components/UserProfile/PublicProfile.vue';
-import SignUpConfirmation from './components/SignUpConfirmation.vue';
-import ProfileSettings from './components/ProfileSettings.vue';
-import FileUpload from './components/features/FileUpload.vue'; 
-import TiptapfullPage from './components/TiptapfullPage.vue';
+import LoginPage from './components/LocalLogin.vue';
+import HomePage from './components/LocalHome.vue';
+import ChattersPage from './components/LocalMyPosts.vue';
+import PublicProfile from './components/LocalPublicProfile.vue';
+import ProfileSettings from './components/LocalProfileSettings.vue';
 import NotFound from './components/NotFound.vue';
 import TermsAndConditions from './components/features/TermsAndConditions.vue';
-import BlugReader from './components/v2.0/BlugReader.vue';
-import CreateBlogPostPage from './components/features/CreateBlogPostPage.vue';
-import ConnectionsPage from './components/v2.0/ConnectionsPage.vue';
-import ReplyPage from './components/v2.0/ReplyPage.vue';
-import EditPostPage from './components/v2.0/EditPostPage.vue';
-import AdminManager from './components/v2.0/AdminManager.vue';
-import OnBoarding from './components/v2.0/OnBoarding.vue'; // Import the OnBoarding component
-import FooterNav from './components/v2.0/FooterNav.vue';
-import NotificationHistory from './components/v2.0/NotificationHistory.vue';
+import BlugReader from './components/LocalReader.vue';
+import CreateBlogPostPage from './components/LocalCompose.vue';
+import ConnectionsPage from './components/LocalConnections.vue';
+import EditPostPage from './components/LocalEditPost.vue';
+import AdminManager from './components/LocalAdmin.vue';
+import NotificationHistory from './components/LocalNotificationHistory.vue';
+import LocalSupport from './components/LocalSupport.vue';
+import AccountRecovery from './components/AccountRecovery.vue';
+import AccountRecoveryComplete from './components/AccountRecoveryComplete.vue';
+import { authStore } from './stores/auth';
 
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: LoginPage },
-  { path: '/signup', component: SignUpPage },
-  { path: '/blugpage', component: HomePage },
+  { path: '/recover-account', component: AccountRecovery },
+  { path: '/recover-account/complete', component: AccountRecoveryComplete },
+  { path: '/signup', redirect: '/login' },
+  { path: '/blugpage', redirect: '/blugbugs' },
   { path: '/myblug', component: ChattersPage },
-  { path: '/home', name: 'BlugPage', component: BlugPage },
-  { path: '/logout', component: LoginPage },
-  { path: '/searchbar', component: SearchBar },
+  { path: '/home', name: 'Home', component: HomePage },
+  { path: '/explore', redirect: '/blugbugs' },
+  { path: '/blugbugs', name: 'Blugbugs', component: HomePage },
+  { path: '/logout', redirect: '/login' },
   { path: '/settings', component: ProfileSettings },
   { path: '/user/:userId', name: 'PublicProfile', component: PublicProfile },
-  { path: '/signup-confirmation', component: SignUpConfirmation },
-  { path: '/upload/:type', name: 'FileUpload', component: FileUpload },
-  { path: '/fullpage', component: TiptapfullPage },
   { path: '/terms-and-conditions', component: TermsAndConditions },
   { path: '/read', name: 'BlugReader', component: BlugReader },
+  { path: '/blug/:blogId', name: 'SharedBlug', component: BlugReader },
   { path: '/create-blog', name: 'CreateBlogPostPage', component: CreateBlogPostPage },
   { path: '/connections', name: 'ConnectionsPage', component: ConnectionsPage },
-  { path: '/reply', name: 'ReplyPage', component: ReplyPage },
   { path: '/edit/:blogId', name: 'EditPostPage', component: EditPostPage },
   { path: '/admin-manager', name: 'AdminManager', component: AdminManager },
-  { path: '/onboarding', name: 'OnBoarding', component: OnBoarding }, // Add route for OnBoarding
-  {path:'/footnav', name:'FooterNav', component:FooterNav},
   { path: '/notifications', name: 'NotificationHistory', component: NotificationHistory },
+  { path: '/support', name: 'Support', component: LocalSupport },
   { path: '/:catchAll(.*)', name: 'NotFound', component: NotFound }
 ];
 
@@ -59,6 +53,20 @@ const router = createRouter({
       return { top: 0 };
     }
   },
+});
+
+const publicPaths = new Set(['/login', '/recover-account', '/recover-account/complete', '/terms-and-conditions']);
+
+router.beforeEach(async (to) => {
+  const user = await authStore.restore();
+  if (to.path === '/signup') return '/login';
+  const isPublic = publicPaths.has(to.path) || to.path.startsWith('/blug/');
+  if (!isPublic && !user) {
+    return { path: '/login', query: { redirect: to.fullPath } };
+  }
+  if (to.path === '/login' && user) return '/home';
+  if (to.path === '/admin-manager' && user?.role !== 'admin') return '/home';
+  return true;
 });
 
 export default router;

@@ -5,7 +5,7 @@
     </div>
     <ul>
       <li v-if="feedPosts.length === 0" class="no-following-message">
-        You are currently following no one and have no blug feed to display.
+        No local posts yet.
       </li>
       <li v-for="post in feedPosts" :key="post.id">
         <div @click="toggleContent(post.id)" class="post-title">{{ post.title }}</div>
@@ -27,11 +27,11 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { supabase } from '../supabase';
 import { useRouter } from 'vue-router';
+import { listPosts } from '../../api/posts';
 
 interface Post {
-  id: number;
+  id: string;
   title: string;
   content: string;
   likes: number;
@@ -46,58 +46,18 @@ export default defineComponent({
   name: 'FeedPage',
   setup() {
     const feedPosts = ref<Post[]>([]);
-    const expandedPost = ref<number | null>(null);
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const expandedPost = ref<string | null>(null);
     const router = useRouter();
 
     const loadFeedPosts = async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('following_id')
-        .eq('id', currentUser.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching following IDs:', error.message);
-        return;
-      }
-
-      const followingIds = data.following_id;
-
-      if (!followingIds || followingIds.length === 0) {
-        feedPosts.value = [];
-        return;
-      }
-
-      const allPosts: Post[] = [];
-
-      for (const userId of followingIds) {
-        const { data: postData, error: postError } = await supabase
-          .from('blog_post')
-          .select('id, title, likes, user_id, created_at, bookmarked_by, blog_id') // Specify needed columns
-          .eq('user_id', userId);
-
-        if (postError) {
-          console.error('Error fetching posts:', postError.message);
-          continue;
-        }
-
-        for (const post of postData) {
-          allPosts.push({
-            id: post.id,
-            title: post.title || 'Untitled',
-            content: '', // Set content as empty since we're not fetching it
-            likes: post.likes || 0,
-            user: post.user_id,
-            userFullName: 'Unknown', // Placeholder or fetch this from users table separately
-            date: post.created_at,
-            bookmarked_by: post.bookmarked_by || [],
-            blog_id: post.blog_id,
-          });
-        }
-      }
-
-      feedPosts.value = allPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      try {
+        const { posts } = await listPosts();
+        feedPosts.value = posts.map((post) => ({
+          id: post.id, title: post.title, content: post.content, likes: 0,
+          user: post.user_id, userFullName: post.full_name || post.chatter_name || 'Local user',
+          date: post.created_at, bookmarked_by: [], blog_id: post.id,
+        }));
+      } catch (error) { console.error(error); }
     };
 
     const formatDateTime = (dateTime: string) => {
@@ -116,33 +76,14 @@ export default defineComponent({
     };
 
     const bookmarkPost = async (post: Post) => {
-      const isBookmarked = post.bookmarked_by.includes(currentUser.id);
-
-      let updatedBookmarkedBy;
-      if (isBookmarked) {
-        updatedBookmarkedBy = post.bookmarked_by.filter(id => id !== currentUser.id);
-      } else {
-        updatedBookmarkedBy = [...post.bookmarked_by, currentUser.id];
-      }
-
-      const { error } = await supabase
-        .from('blog_post')
-        .update({ bookmarked_by: updatedBookmarkedBy })
-        .eq('id', post.id);
-
-      if (error) {
-        console.error('Error updating bookmarks:', error.message);
-        return;
-      }
-
-      post.bookmarked_by = updatedBookmarkedBy;
+      return post;
     };
 
     const isBookmarked = (post: Post) => {
-      return post.bookmarked_by.includes(currentUser.id);
+      return false;
     };
 
-    const toggleContent = (postId: number) => {
+    const toggleContent = (postId: string) => {
       expandedPost.value = expandedPost.value === postId ? null : postId;
     };
 

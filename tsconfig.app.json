@@ -1,11 +1,26 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": [
+    "env.d.ts",
+    "vite-env.d.ts",
+    "src/main.ts",
+    "src/App.vue",
+    "src/router.ts",
+    "src/api/**/*",
+    "src/stores/**/*",
+    "src/components/Local*.vue",
+    "src/components/LoginPage.vue",
+    "src/components/NavBar.vue",
+    "src/components/NotFound.vue",
+    "src/components/UserProfile/HomePage.vue",
+    "src/components/features/FeedPage.vue",
+    "src/components/features/ProfileHeader.vue",
+    "src/components/features/CreateBlogPostPage.vue",
+    "src/components/features/TermsAndConditions.vue",
+    "src/components/v2.0/BlugReader.vue"
+  ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

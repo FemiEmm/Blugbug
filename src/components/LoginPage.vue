@@ -46,37 +46,23 @@
               {{ isLoading ? 'Logging in...' : isInvalidLogin ? 'Wrong Details' : 'Login' }}
             </button>
           </form>
-          <p>
-            Don't have an account?
-            <router-link to="/signup">Sign Up</router-link>
-          </p>
+          <p class="local-mode">Local mode: use the preset account configured on this PC.</p>
         </div>
       </div>
     </div>
-    <!-- Password Recovery Modal -->
-    <PasswordRecovery :showModal="showPasswordRecovery" @close="showPasswordRecovery = false" />
     <!-- LogComplaint Modal -->
-    <LogComplaint 
-      v-if="showLoginLogComplainModal" 
-      :showModal="showLoginLogComplainModal" 
-      @close="toggleLoginLogComplainModal" 
-    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { supabase } from './supabase';
-import bcrypt from 'bcryptjs';
-import PasswordRecovery from '../components/v2.0/PasswordRecovery.vue';
-import LogComplaint from '../components/v2.0/LogComplaint.vue'; // Import the LogComplaint component
+import { authStore } from '../stores/auth';
+import { ApiError } from '../api/client';
 
 export default defineComponent({
   name: 'LoginPage',
   components: {
-    PasswordRecovery,
-    LogComplaint, // Register the LogComplaint component
   },
   setup() {
     const router = useRouter();
@@ -86,7 +72,6 @@ export default defineComponent({
     const passwordFieldIcon = ref('fas fa-eye');
     const isInvalidLogin = ref(false);
     const isLoading = ref(false);
-    const showPasswordRecovery = ref(false);
     const showLoginLogComplainModal = ref(false); // New reactive property for controlling LogComplaint modal in LoginPage
 
     const onSubmit = async () => {
@@ -94,38 +79,14 @@ export default defineComponent({
       isInvalidLogin.value = false;
 
       try {
-        const { data: user, error } = await supabase
-          .from('users')
-          .select('id, email, password')
-          .or(`email.eq.${username.value},chatter_name.eq.${username.value}`)
-          .single();
-
-        if (error || !user) {
-          isInvalidLogin.value = true;
-          setTimeout(() => {
-            isInvalidLogin.value = false;
-          }, 2000);
-          return;
-        }
-
-        // First, try bcrypt password comparison
-        const passwordMatches = await bcrypt.compare(password.value, user.password);
-
-        if (!passwordMatches) {
-          // If bcrypt comparison fails, check if the password matches as plain text
-          if (password.value !== user.password) {
-            isInvalidLogin.value = true;
-            setTimeout(() => {
-              isInvalidLogin.value = false;
-            }, 2000);
-            return;
-          }
-        }
-
-        localStorage.setItem('currentUser', JSON.stringify({ id: user.id, email: user.email }));
-        router.push({ path: '/home' });
-      } catch (err: any) {
-        alert(`Unexpected error: ${err.message}`);
+        await authStore.login(username.value, password.value);
+        const redirect = typeof router.currentRoute.value.query.redirect === 'string'
+          ? router.currentRoute.value.query.redirect
+          : '/home';
+        await router.push(redirect);
+      } catch (err) {
+        isInvalidLogin.value = true;
+        if (!(err instanceof ApiError)) console.error(err);
       } finally {
         isLoading.value = false;
       }
@@ -141,12 +102,10 @@ export default defineComponent({
       }
     };
 
-    const showForgotPasswordModal = () => {
-      showPasswordRecovery.value = true;
-    };
+    const showForgotPasswordModal = () => alert('Password recovery is disabled in local mode.');
 
     const toggleLoginLogComplainModal = () => {
-      showLoginLogComplainModal.value = !showLoginLogComplainModal.value;
+      alert('Log in to use local support.');
     };
 
     return {
@@ -158,7 +117,6 @@ export default defineComponent({
       togglePasswordVisibility,
       isInvalidLogin,
       isLoading,
-      showPasswordRecovery,
       showForgotPasswordModal,
       showLoginLogComplainModal,
       toggleLoginLogComplainModal,

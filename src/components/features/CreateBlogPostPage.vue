@@ -3,11 +3,9 @@
     <NavBar />
     <div class="content-container">
       <input v-model="title" placeholder="Enter the title" class="title-input" />
-      <!-- Banner image upload input -->
-      <input type="file" @change="handleImageUpload" accept="image/jpeg" class="image-input" />
-      <!-- Image preview with placeholder -->
+      <input type="file" @change="handleImageUpload" accept="image/jpeg,image/png,image/webp,image/gif" class="image-input" />
       <img :src="bannerImageUrl || placeholderImageUrl" alt="Banner Preview" class="banner-preview" />
-      <TiptapEditor ref="tiptapEditor" @updateContent="updateContent" />
+      <TiptapEditor ref="tiptapEditor" :initialContent="''" @updateContent="updateContent" />
       <div class="editor-actions">
         <div class="category-selection">
           <select v-model="selectedCategory">
@@ -32,10 +30,11 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import TiptapEditor from '../TiptapEditor.vue';
-import { supabase } from '../supabase';
+import TiptapEditor from '../LocalEditor.vue';
 import NavBar from '../NavBar.vue';
-import { v4 as uuidv4 } from 'uuid';
+import { createPost } from '../../api/posts';
+import { authStore } from '../../stores/auth';
+import { uploadImage } from '../../api/uploads';
 
 export default defineComponent({
   name: 'CreateBlogPostPage',
@@ -74,20 +73,7 @@ export default defineComponent({
     });
 
     const fetchUserInfo = async () => {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      const userId = currentUser.id;
-
-      const { data, error } = await supabase
-        .from('users')
-        .select('full_name, chatter_name')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user data:', error.message);
-      } else {
-        user.value = data;
-      }
+      user.value = authStore.user.value;
     };
 
     const updateContent = (updatedContent: string) => {
@@ -160,70 +146,18 @@ export default defineComponent({
       showTitleError.value = !title.value.trim();
       showContentError.value = !content.value.trim();
       showCategoryError.value = !selectedCategory.value;
-      showImageError.value = !bannerImageUrl.value; // Ensure image is uploaded
+      showImageError.value = false;
 
       if (showTitleError.value || showContentError.value || showCategoryError.value || showImageError.value) {
         return;
       }
 
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      const userId = currentUser.id;
-
-      const htmlContent = `
-        <html>
-          <body>
-            <h1>${title.value}</h1>
-            <address>Created by: ${user.value.full_name}</address>
-            <time datetime="${new Date(timestamp.value).toISOString()}">Date: ${new Date(timestamp.value).toLocaleString()}</time>
-            <hr>
-            <article class="blog-body">${content.value}</article>
-          </body>
-        </html>
-      `;
-
-      const blogId = uuidv4();
-      const blogFolder = `${userId}/${blogId}/`;
-
       try {
-        // Upload HTML content
-        const { error: htmlError } = await supabase.storage
-          .from('blog-post')
-          .upload(`${blogFolder}${blogId}.html`, new Blob([htmlContent], { type: 'text/html' }));
-
-        if (htmlError) throw htmlError;
-
-        // Upload WebP image file
-        if (webpImageFile.value) {
-          const { error: imageError } = await supabase.storage
-            .from('blog-post')
-            .upload(`${blogFolder}header-image.webp`, webpImageFile.value);
-
-          if (imageError) throw imageError;
-        }
-
-        // Insert blog post metadata
-        const { error: insertError } = await supabase
-          .from('blog_post')
-          .insert([
-            {
-              user_id: userId,
-              blog_id: blogId,
-              title: title.value,
-              likes: 0,
-              comments: [],
-              bookmarks: 0,
-              full_name: user.value.full_name,
-              chatter_name: user.value.chatter_name,
-              categories: selectedCategory.value,
-            },
-          ]);
-
-        if (insertError) throw insertError;
-
-        console.log('Blog post inserted successfully.');
-        router.push('/home');
+        const { post } = await createPost({ title: title.value, content: content.value, categories: selectedCategory.value });
+        if (imageFile.value) await uploadImage(imageFile.value, 'header', post.id);
+        await router.push('/home');
       } catch (error) {
-        console.error('Error publishing blog post:', error.message);
+        console.error('Error publishing blog post:', error);
       }
     };
 

@@ -1,12 +1,12 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { QuillEditor } from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import './assets/reset.css';
 import './assets/global.css';
+import './assets/app.css';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { initializeTheme } from './stores/theme';
 
 import { 
   faHouse, 
@@ -98,8 +98,8 @@ library.add(
 );
 
 const app = createApp(App);
+initializeTheme();
 
-app.component('QuillEditor', QuillEditor);
 app.component('font-awesome-icon', FontAwesomeIcon);
 
 app.use(router).mount('#app');

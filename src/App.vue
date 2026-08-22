@@ -13,10 +13,8 @@ export default defineComponent({
 </script>
 
 <style>
-@import 'quill/dist/quill.snow.css';
 body {
   font-family: 'Karla', sans-serif;
 }
 </style>
-
 

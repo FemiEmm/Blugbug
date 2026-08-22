@@ -12,6 +12,27 @@ node_modules
 
 # Local environment variables
 .env
+.env.local
+
+# Local backend data
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/uploads/*
+!data/uploads/.gitkeep
+data/import-backups/
+data/import-staging/
+data/import-reports/
+data/supabase-push-backups/
+data/supabase-push-staging/
+data/supabase-push-reports/
+database old/
+tmp/
+
+# Local design/document artifacts (kept on this PC, not deployed)
+design-backups/
+output/
+zipped fix/
 
 # Build output
 dist

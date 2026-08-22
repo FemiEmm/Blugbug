@@ -4,15 +4,17 @@
     <div class="top-row">
       <div class="header-image-container">
         <img :src="headerImage" alt="Header Image" class="header-image" loading="lazy" />
-        <label v-if="!disableUpload" class="upload-header-icon" @click="showFileUploadModal('header')">
+        <label v-if="!disableUpload" class="upload-header-icon">
           <i class="fas fa-camera"></i>
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden @change="uploadProfileImage($event, 'header')" />
         </label>
       </div>
       <div class="profile-picture-container">
         <div class="profile-picture-circle">
           <img :src="profilePicture" alt="Profile Picture" class="profile-image" loading="lazy" />
-          <label v-if="!disableUpload" class="upload-icon" @click="showFileUploadModal('profile')">
+          <label v-if="!disableUpload" class="upload-icon">
             <i class="fas fa-camera"></i>
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden @change="uploadProfileImage($event, 'profile')" />
           </label>
         </div>
       </div>
@@ -65,15 +67,15 @@
       </div>
     </div>
 
-    <FileUpload v-if="showFileUpload" :type="uploadType" @uploadComplete="fetchUserData" @close="closeFileUploadModal" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { supabase } from '../supabase';
-import FileUpload from '../features/FileUpload.vue';
+import { getUser } from '../../api/users';
+import { listPosts } from '../../api/posts';
+import { uploadImage } from '../../api/uploads';
 
 interface User {
   fullName: string;
@@ -90,9 +92,6 @@ interface User {
 
 export default defineComponent({
   name: 'ProfileHeader',
-  components: {
-    FileUpload,
-  },
   props: {
     userId: {
       type: String,
@@ -135,18 +134,8 @@ export default defineComponent({
         checkmarkIconUrl.value = user.value.checkmark_url;
       }
 
-      const { data, error } = await supabase
-        .from('users')
-        .select('full_name, chatter_name, about_me, id, profile_image_url, header_image_url, checkmark_url, followers, following, interest_id')
-        .eq('id', props.userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user data:', error.message);
-        return;
-      }
-
-      if (data) {
+      try {
+        const { user: data } = await getUser(props.userId);
         user.value = {
           fullName: data.full_name,
           chatterName: data.chatter_name,
@@ -154,10 +143,10 @@ export default defineComponent({
           id: data.id,
           profile_image_url: data.profile_image_url || '/Default_pfp.svg',
           header_image_url: data.header_image_url || '/Default_Header.svg',
-          checkmark_url: data.checkmark_url || null,
-          followers: data.followers || 0,
-          following: data.following || 0,
-          interests: data.interest_id ? data.interest_id.split(',') : [],
+          checkmark_url: null,
+          followers: 0,
+          following: 0,
+          interests: [],
         };
         profilePicture.value = user.value.profile_image_url;
         headerImage.value = user.value.header_image_url;
@@ -166,24 +155,13 @@ export default defineComponent({
         localStorage.setItem(`user_data_${props.userId}`, JSON.stringify(user.value));
 
         await fetchTotalLikesAndBookmarks();
-      }
+      } catch (error) { console.error(error); }
     };
 
     const fetchTotalLikesAndBookmarks = async () => {
-      const { data, error } = await supabase
-        .from('blog_post')
-        .select('likes, bookmarked_by')
-        .eq('user_id', props.userId);
-
-      if (error) {
-        console.error('Error fetching total likes and bookmarks:', error.message);
-        return;
-      }
-
-      if (data) {
-        totalLikes.value = data.reduce((sum, post) => sum + post.likes, 0);
-        totalBookmarks.value = data.reduce((sum, post) => sum + (post.bookmarked_by ? post.bookmarked_by.length : 0), 0);
-      }
+      await listPosts(props.userId);
+      totalLikes.value = 0;
+      totalBookmarks.value = 0;
     };
 
     const showFileUploadModal = (type: 'profile' | 'header' | 'checkmark') => {
@@ -195,6 +173,13 @@ export default defineComponent({
 
     const closeFileUploadModal = () => {
       showFileUpload.value = false;
+    };
+
+    const uploadProfileImage = async (event: Event, purpose: 'profile' | 'header') => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try { await uploadImage(file, purpose); await fetchUserData(); }
+      catch (error) { console.error(error); }
     };
 
     const navigateToCreateBlogPostPage = () => {
@@ -243,6 +228,7 @@ export default defineComponent({
       navigateToFollowers,
       navigateToFollowing,
       getColorClass,
+      uploadProfileImage,
     };
   },
 });

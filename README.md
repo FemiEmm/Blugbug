@@ -1,5 +1,13 @@
 ### README
 
+## Local backend mode
+
+1. Copy `.env.example` to `.env.local` if you want to change the preset login.
+2. Run `npm run dev` to start the local API and web app.
+3. Log in with `admin` / `blugbug-local` unless overridden locally.
+
+SQLite is created at `data/blugbug.sqlite`; local database files are ignored by Git.
+
 This document provides a simple guide on how to set up and run the web application.
 
 ### Prerequisites

@@ -13,19 +13,19 @@
       <img v-if="headerImageUrl" :src="headerImageUrl" alt="Blog Header Image" class="header-image" />
     </div>
     <div class="blug-content" v-html="post?.content"></div>
-    <InteractivePage :blogId="post?.id" ref="interactivePage" />
+    <LocalInteractions v-if="post" :postId="post.id" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { supabase } from '../supabase';
+import { getPost } from '../../api/posts';
 import NavBar from '../../components/NavBar.vue';
-import InteractivePage from '../features/InteractionPage.vue';
+import LocalInteractions from '../LocalInteractions.vue';
 
 interface Post {
-  id: number;
+  id: string;
   title: string;
   content: string;
   likes: number;
@@ -39,7 +39,7 @@ export default defineComponent({
   name: 'BlugReader',
   components: {
     NavBar,
-    InteractivePage,
+    LocalInteractions,
   },
   setup() {
     const route = useRoute();
@@ -47,7 +47,6 @@ export default defineComponent({
     const post = ref<Post | null>(null);
     const isLoading = ref(true);
     const headerImageUrl = ref<string | null>(null); // Reactive property for the header image URL
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const interactivePageRef = ref<HTMLElement | null>(null);
 
     const clearAndSetBlogIdInLocalStorage = (blogId: string) => {
@@ -56,112 +55,23 @@ export default defineComponent({
     };
 
     const loadPost = async (blogId: string) => {
-      const { data, error } = await supabase
-        .from('blog_post')
-        .select('*')
-        .eq('blog_id', blogId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching post:', error.message);
-        isLoading.value = false;
-        return;
-      }
-
-      if (data) {
-        const folderPath = `${data.user_id}/${data.blog_id}`;
-        const htmlFilePath = `${folderPath}/${data.blog_id}.html`;
-        const imageFilePath = `${folderPath}/header-image.webp`; // Path to the header image
-
-        // Fetch the HTML content
-        const { data: postContent, error: contentError } = await supabase.storage
-          .from('blog-post')
-          .download(htmlFilePath);
-
-        if (contentError) {
-          console.error('Error fetching post content:', contentError.message);
-          isLoading.value = false;
-          return;
-        }
-
-        const contentText = await postContent.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(contentText, 'text/html');
-
-        // Center-align all <address> elements
-        const addresses = doc.querySelectorAll('address');
-        addresses.forEach(address => {
-          address.style.textAlign = 'center';
-        });
-
-        const links = doc.querySelectorAll('a');
-        links.forEach(link => {
-        link.style.color = '#fd662f'; // Change the color to your desired one
-        });
-
-
-        // Center-align all <time> elements
-        const times = doc.querySelectorAll('time');
-        times.forEach(time => {
-          time.style.display = 'block';
-          time.style.textAlign = 'center';
-        });
-
-        // Center headers (h1) and paragraphs (p)
-        const headers = doc.querySelectorAll('h1');
-        headers.forEach(header => {
-          header.style.textAlign = 'center';
-          header.style.fontSize = '35px';
-          header.style.fontWeight='bold';
-        });
-
-        const paragraphs = doc.querySelectorAll('p');
-        paragraphs.forEach(paragraph => {
-          paragraph.style.textAlign = 'justify';
-        });
-
-        // Modify image elements
-        const images = doc.querySelectorAll('img');
-        images.forEach(img => {
-          img.classList.add('custom-img-class');
-          img.style.width = '60%';
-          img.style.height = '300px';
-          img.style.objectFit = 'cover';
-          img.style.display = 'block';
-          img.style.margin = '0 auto';
-          img.style.overflow = 'hidden';
-        });
-
-        const bodyContent = Array.from(doc.body.children)
-          .map((child) => child.outerHTML)
-          .join('');
-
+      try {
+        const { post: data } = await getPost(blogId);
         post.value = {
           id: data.id,
           title: data.title,
-          content: bodyContent,
-          likes: data.likes || 0,
+          content: data.content,
+          likes: 0,
           user: data.user_id,
-          userFullName: data.user_full_name,
+          userFullName: data.full_name || data.chatter_name || 'Local user',
           date: data.created_at,
-          bookmarked_by: data.bookmarked_by || [],
+          bookmarked_by: [],
         };
-
-        // Fetch the header image
-        const { data: headerImageData, error: imageError } = await supabase.storage
-          .from('blog-post')
-          .getPublicUrl(imageFilePath);
-
-        if (imageError) {
-          console.error('Error fetching header image:', imageError.message);
-        } else {
-          headerImageUrl.value = headerImageData.publicUrl; // Set the header image URL
-        }
-
-        setMetaTags(data.title, data.description || '', headerImageUrl.value); // Set meta tags
-        clearAndSetBlogIdInLocalStorage(data.blog_id);
-        isLoading.value = false;
-      }
+        headerImageUrl.value = data.header_image_url || null;
+        setMetaTags(data.title, '', null);
+        clearAndSetBlogIdInLocalStorage(data.id);
+      } catch (error) { console.error(error); }
+      finally { isLoading.value = false; }
     };
 
     const setMetaTags = (title: string, description: string, imageUrl: string | null) => {
@@ -194,26 +104,7 @@ export default defineComponent({
 
     const toggleBookmark = async () => {
       if (!post.value) return;
-      const isBookmarked = post.value.bookmarked_by.includes(currentUser.id);
-
-      let updatedBookmarkedBy;
-      if (isBookmarked) {
-        updatedBookmarkedBy = post.value.bookmarked_by.filter(id => id !== currentUser.id);
-      } else {
-        updatedBookmarkedBy = [...post.value.bookmarked_by, currentUser.id];
-      }
-
-      const { error } = await supabase
-        .from('blog_post')
-        .update({ bookmarked_by: updatedBookmarkedBy })
-        .eq('id', post.value.id);
-
-      if (error) {
-        console.error('Error updating bookmarks:', error.message);
-        return;
-      }
-
-      post.value.bookmarked_by = updatedBookmarkedBy;
+      return;
     };
 
     const autoScrollToInteractivePage = () => {

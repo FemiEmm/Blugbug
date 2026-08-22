@@ -10,20 +10,9 @@
           :followingCount="followingCount" 
           :followersCount="followersCount"
         />
-        <div class="header-toggle">
-          <h3 :class="{ active: currentComponent === 'Feed' }" @click="showBlug">Blug</h3>
-          <h3 :class="{ active: currentComponent === 'InterestPage' }" @click="showInterestFeed">Blugspot</h3>
-        </div>
         <div class="feed-container">
-          <component :is="currentComponent" />
+          <Feed />
         </div>
-        <FooterNav/>
-      </div>
-      <div class="right-column" :class="{ 'right-column-visible': rightColumnVisible }">
-        <InfoData />
-      </div>
-      <div class="toggle-button" @click="toggleRightColumn">
-        <font-awesome-icon :icon="['fas', 'bars']" />
       </div>
     </div>
     
@@ -35,10 +24,8 @@ import { defineComponent, ref, onMounted } from 'vue';
 import NavBar from '../NavBar.vue';
 import ProfileHeader from '../features/ProfileHeader.vue';
 import Feed from '../features/FeedPage.vue';
-import InterestPage from '../features/InterestPage.vue';
-import InfoData from '../infofeatures/InfoData.vue';
-import { supabase } from '../supabase';
-import FooterNav from '../v2.0/FooterNav.vue';
+import { getUser } from '../../api/users';
+import { authStore } from '../../stores/auth';
 
 interface User {
   id: string;
@@ -56,33 +43,19 @@ export default defineComponent({
     NavBar,
     ProfileHeader,
     Feed,
-    InterestPage,
-    InfoData,
-    FooterNav,
   },
   setup() {
-    const userId = JSON.parse(localStorage.getItem('currentUser') || '{}').id;
+    const userId = authStore.user.value?.id || '';
     const user = ref<User | null>(null);
     const totalLikes = ref<number>(0);
     const totalBookmarks = ref<number>(0);
     const followingCount = ref<number>(0);
     const followersCount = ref<number>(0);
 
-    const currentComponent = ref('Feed');
-    const rightColumnVisible = ref(false);
 
     const fetchUserData = async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        return;
-      }
-
-      if (data) {
+      try {
+        const { user: data } = await getUser(userId);
         user.value = {
           id: data.id,
           fullName: data.full_name,
@@ -92,20 +65,9 @@ export default defineComponent({
           profile_image_url: data.profile_image_url || '/public/Default_pfp.svg',
           header_image_url: data.header_image_url || '/public/default-header-image-path',
         };
-      }
+      } catch (error) { console.error(error); }
     };
 
-    const showBlug = () => {
-      currentComponent.value = 'Feed';
-    };
-
-    const showInterestFeed = () => {
-      currentComponent.value = 'InterestPage';
-    };
-
-    const toggleRightColumn = () => {
-      rightColumnVisible.value = !rightColumnVisible.value;
-    };
 
     onMounted(() => {
       fetchUserData();
@@ -118,11 +80,6 @@ export default defineComponent({
       totalBookmarks,
       followingCount,
       followersCount,
-      currentComponent,
-      rightColumnVisible,
-      showBlug,
-      showInterestFeed,
-      toggleRightColumn,
     };
   },
 });
