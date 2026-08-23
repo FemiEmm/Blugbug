@@ -36,29 +36,29 @@ main:not(.login-page)::before,.settings-page::before{content:"";position:fixed;z
 
 /* Opaque editorial theme — accessible warm paper with ladybug red. */
 :root{--ink:#201d19;--text:#201d19;--page:#f3eee5;--surface:#fffaf0;--input:#fffdf7;--panel:#fffaf0;--panel-2:#f3eadb;--soft:#f3eadb;--line:#d8cdbc;--cream:#201d19;--muted:#625c54;--orange:#d62828;--orange-2:#b91f24;--shadow:0 14px 34px rgba(55,43,29,.1)}
-html,body{background:#f3eee5;color:var(--cream)}
-body,body::before{background:#f3eee5!important}
-.page-shell,main:not(.login-page),.settings-page{background:#f3eee5!important}
-main:not(.login-page)::before,.settings-page::before{background:#f3eee5!important}
-.surface,:is(.settings-card,.editor,.compose-card,.profile-hero,.profile-content>aside,.join-card){background:#fffaf0!important;border-color:#d8cdbc!important;box-shadow:var(--shadow)!important;backdrop-filter:none!important}
-:is(.home-revamp,.connections-workspace,.activity-workspace,.myblugs-workspace){background:#fffaf0!important;border-color:#d8cdbc!important;box-shadow:var(--shadow)!important;backdrop-filter:none!important;color:#201d19}
-:is(.connections-main,.activity-main,.myblugs-main){border-color:#d8cdbc!important}
+html:not([data-theme="dark"]),html:not([data-theme="dark"]) body{background:#f3eee5;color:var(--cream)}
+html:not([data-theme="dark"]) body,html:not([data-theme="dark"]) body::before{background:#f3eee5!important}
+html:not([data-theme="dark"]) :is(.page-shell,main:not(.login-page),.settings-page){background:#f3eee5!important}
+html:not([data-theme="dark"]) :is(main:not(.login-page)::before,.settings-page::before){background:#f3eee5!important}
+html:not([data-theme="dark"]) .surface,html:not([data-theme="dark"]) :is(.settings-card,.editor,.compose-card,.profile-hero,.profile-content>aside,.join-card){background:#fffaf0!important;border-color:#d8cdbc!important;box-shadow:var(--shadow)!important;backdrop-filter:none!important}
+html:not([data-theme="dark"]) :is(.home-revamp,.connections-workspace,.activity-workspace,.myblugs-workspace){background:#fffaf0!important;border-color:#d8cdbc!important;box-shadow:var(--shadow)!important;backdrop-filter:none!important;color:#201d19}
+html:not([data-theme="dark"]) :is(.connections-main,.activity-main,.myblugs-main){border-color:#d8cdbc!important}
 input,textarea,select{accent-color:var(--orange)}
-:is(.settings-page,.edit-page) input,:is(.settings-page,.edit-page) textarea{background:#fffdf7!important;color:#201d19!important;border:1px solid #cfc2ae!important}
-.eyebrow{color:#b91f24}
+html:not([data-theme="dark"]) :is(.settings-page,.edit-page) input,html:not([data-theme="dark"]) :is(.settings-page,.edit-page) textarea{background:#fffdf7!important;color:#201d19!important;border:1px solid #cfc2ae!important}
+html:not([data-theme="dark"]) .eyebrow{color:#b91f24}
 @media(prefers-color-scheme:dark){html,body{color-scheme:light}}
-:is(.people-search,.search-box,.myblugs-rail>label,.mobile-search){background:#f3eadb!important;color:#201d19!important}
-:is(.people-search,.search-box,.myblugs-rail>label,.mobile-search) input{color:#201d19!important}
-:is(.relationship.connected,.rail-card>header button,.page-head>button,.post-copy footer button){background:#eee4d5!important;color:#201d19!important}
-:is(.person-profile,.rail-name,.suggestion-name,.suggestion-follow,.connection-tabs button,.filters button){color:#201d19!important}
-:is(.person-profile small,.person-profile p,.rail-name small,.rail-note p,.day-group small,.post-copy p,.myblugs-rail p){color:#625c54!important}
-:is(.connections-rail,.activity-rail,.myblugs-rail){background:#fbf4e8}
-:is(.writer-card,.topic-card){background:#fffaf0!important;border-color:#d8cdbc!important;backdrop-filter:none!important;color:#201d19!important}
-.public-top{background:#fffaf0!important}.story-body{color:#3f3932!important}.story h1{color:#201d19!important}.story footer{color:#625c54!important}.back{color:#625c54!important}
-.interactions{color:#201d19!important}.interactions h2{color:#201d19!important}.interactions button{background:#fffaf0!important;color:#201d19!important;border-color:#bcae99!important}.interactions button.active,.interactions form>button{background:#d62828!important;color:#fff!important}.interactions input{background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}.reply{color:#625c54!important}
-:is(.search-hero,.voices-panel,.browse-panel,.people-gallery article,.hero-search,.hero-search select,.explore-mode .feed .grid-card){background:#fffaf0!important;color:#201d19!important;border-color:#d8cdbc!important;box-shadow:none!important}.hero-input input{color:#201d19!important}.people-gallery article:hover{background:#f7efe3!important}.explore-mode{background:transparent!important}
+html:not([data-theme="dark"]) :is(.people-search,.search-box,.myblugs-rail>label,.mobile-search){background:#f3eadb!important;color:#201d19!important}
+html:not([data-theme="dark"]) :is(.people-search,.search-box,.myblugs-rail>label,.mobile-search) input{color:#201d19!important}
+html:not([data-theme="dark"]) :is(.relationship.connected,.rail-card>header button,.page-head>button,.post-copy footer button){background:#eee4d5!important;color:#201d19!important}
+html:not([data-theme="dark"]) :is(.person-profile,.rail-name,.suggestion-name,.suggestion-follow,.connection-tabs button,.filters button){color:#201d19!important}
+html:not([data-theme="dark"]) :is(.person-profile small,.person-profile p,.rail-name small,.rail-note p,.day-group small,.post-copy p,.myblugs-rail p){color:#625c54!important}
+html:not([data-theme="dark"]) :is(.connections-rail,.activity-rail,.myblugs-rail){background:#fbf4e8}
+html:not([data-theme="dark"]) :is(.writer-card,.topic-card){background:#fffaf0!important;border-color:#d8cdbc!important;backdrop-filter:none!important;color:#201d19!important}
+html:not([data-theme="dark"]) .public-top{background:#fffaf0!important}html:not([data-theme="dark"]) .story-body{color:#3f3932!important}html:not([data-theme="dark"]) .story h1{color:#201d19!important}html:not([data-theme="dark"]) .story footer{color:#625c54!important}html:not([data-theme="dark"]) .back{color:#625c54!important}
+html:not([data-theme="dark"]) .interactions{color:#201d19!important}html:not([data-theme="dark"]) .interactions h2{color:#201d19!important}html:not([data-theme="dark"]) .interactions button{background:#fffaf0!important;color:#201d19!important;border-color:#bcae99!important}html:not([data-theme="dark"]) .interactions button.active,html:not([data-theme="dark"]) .interactions form>button{background:#d62828!important;color:#fff!important}html:not([data-theme="dark"]) .interactions input{background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}html:not([data-theme="dark"]) .reply{color:#625c54!important}
+html:not([data-theme="dark"]) :is(.search-hero,.voices-panel,.browse-panel,.people-gallery article,.hero-search,.hero-search select,.explore-mode .feed .grid-card){background:#fffaf0!important;color:#201d19!important;border-color:#d8cdbc!important;box-shadow:none!important}html:not([data-theme="dark"]) .hero-input input{color:#201d19!important}html:not([data-theme="dark"]) .people-gallery article:hover{background:#f7efe3!important}html:not([data-theme="dark"]) .explore-mode{background:transparent!important}
 html:not([data-theme="dark"]) .compose-card .author select,html:not([data-theme="dark"]) .compose-card .editor .surface{background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}html:not([data-theme="dark"]) .compose-card .title{color:#201d19!important}html:not([data-theme="dark"]) .compose-card .title::placeholder{color:#756d63!important}html:not([data-theme="dark"]) .compose-card .tools,html:not([data-theme="dark"]) .compose-card footer p,html:not([data-theme="dark"]) .compose-card .author span{color:#625c54!important}
-.activity-icon{background:#f2dfda!important;color:#b91f24!important}.day-group article:nth-of-type(4n+2) .activity-icon{background:#e3efe5!important;color:#267a3f!important}.day-group article:nth-of-type(4n+3) .activity-icon{background:#e4e9f7!important;color:#315fb5!important}.day-group article:nth-of-type(4n+4) .activity-icon{background:#f7e9c9!important;color:#9a6500!important}.unread{background:#fff2ee!important}
+html:not([data-theme="dark"]) .activity-icon{background:#f2dfda!important;color:#b91f24!important}html:not([data-theme="dark"]) .day-group article:nth-of-type(4n+2) .activity-icon{background:#e3efe5!important;color:#267a3f!important}html:not([data-theme="dark"]) .day-group article:nth-of-type(4n+3) .activity-icon{background:#e4e9f7!important;color:#315fb5!important}html:not([data-theme="dark"]) .day-group article:nth-of-type(4n+4) .activity-icon{background:#f7e9c9!important;color:#765000!important}html:not([data-theme="dark"]) .unread{background:#fff2ee!important}
 html:not([data-theme="dark"]) :is(.settings-card input,.settings-card textarea,.editor input,.editor textarea,.layout input,.layout textarea,main>section>form input,main>section>form textarea){background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}
 /* Light-theme contrast guardrails for every active local page. */
 html:not([data-theme="dark"]) :is(.profile-hero,.profile-content>aside,.settings-card,.editor,.compose-card,.connections-workspace,.activity-workspace,.myblugs-workspace,.reader-layout,.panel,.channel-list,.system){color:#201d19!important}
@@ -205,3 +205,15 @@ html[data-theme="dark"] .compose-card .editor .surface:focus{
   outline:2px solid rgba(255,138,138,.72)!important;
   outline-offset:-2px;
 }
+
+/* Reader hero and article typography. These specific rules prevent legacy
+   light reader declarations from making headings disappear in dark mode. */
+html[data-theme="dark"] .story,
+html[data-theme="dark"] .story header,
+html[data-theme="dark"] .story-body{background:#242321!important;color:#f7f0e8!important}
+html[data-theme="dark"] .story h1,
+html[data-theme="dark"] .story-body :is(h2,h3,h4){color:#f7f0e8!important}
+html[data-theme="dark"] .story :is(.byline b,.byline a){color:#f7f0e8!important}
+html[data-theme="dark"] .story :is(.byline p,footer),
+html[data-theme="dark"] .back{color:#c1b8ae!important}
+html[data-theme="dark"] .story footer{border-color:#514c45!important}

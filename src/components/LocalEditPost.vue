@@ -66,7 +66,7 @@ const save = async () => {
 h1 { margin: 8px 0 0; color: var(--ink); font-family: Georgia, serif; font-size: clamp(2.3rem, 5vw, 4.2rem); letter-spacing: -.055em; }
 .actions { display: flex; gap: 10px; }
 label { display: grid; gap: 8px; margin: 18px 0; color: var(--ink); font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-input, textarea { padding: 15px 17px; border: 1px solid var(--line); border-radius: 14px; background: #fffdf8; color: var(--ink); font: inherit; text-transform: none; letter-spacing: normal; }
+input, textarea { padding: 15px 17px; border: 1px solid var(--line); border-radius: 14px; background: var(--input); color: var(--text); font: inherit; text-transform: none; letter-spacing: normal; }
 input:focus { border-color: var(--orange); outline: 3px solid color-mix(in srgb,var(--orange) 18%,transparent); }
 .error{color:var(--orange);font-weight:700;text-transform:none;letter-spacing:normal}
 @media (max-width: 680px) { .editor-head { display: grid; } .actions { order: 2; } }

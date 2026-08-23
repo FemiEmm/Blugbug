@@ -54,14 +54,16 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f5f5f5;
+  background-color: var(--page);
+  color: var(--text);
   text-align: center;
 }
 
 .content {
   max-width: 400px;
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -74,7 +76,7 @@ h1 {
 p {
   font-size: 16px;
   margin-bottom: 40px;
-  color: #666666;
+  color: var(--muted);
 }
 
 .button-container {
@@ -86,7 +88,7 @@ p {
 button {
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #fd662f;
+  background-color: var(--orange);
   color: white;
   border: none;
   border-radius: 4px;
@@ -94,6 +96,6 @@ button {
 }
 
 button:hover {
-  background-color: #e04a2e;
+  background-color: var(--orange-2);
 }
 </style>

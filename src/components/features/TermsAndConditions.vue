@@ -72,7 +72,9 @@ export default defineComponent({
 }
 
 .modal-container {
-  background-color: #1e2127;
+  background-color: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -84,7 +86,7 @@ export default defineComponent({
 
 .terms-container h1 {
   font-size: 28px;
-  color: #ff5733;
+  color: var(--orange);
   margin-bottom: 20px;
   text-align: center;
 }
@@ -92,7 +94,7 @@ export default defineComponent({
 .terms-container p {
   line-height: 1.6;
   font-size: 16px;
-  color: #cebfad;
+  color: var(--muted);
   margin-bottom: 15px;
 }
 
@@ -100,7 +102,7 @@ export default defineComponent({
   display: block;
   margin: 20px auto 0;
   padding: 10px 20px;
-  background-color: #ff5733;
+  background-color: var(--orange);
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -110,7 +112,7 @@ export default defineComponent({
 }
 
 .close-button:hover {
-  background-color: #e04b29;
+  background-color: var(--orange-2);
 }
 
 @media (max-width: 768px) {
