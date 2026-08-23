@@ -35,7 +35,7 @@ main:not(.login-page)::before,.settings-page::before{content:"";position:fixed;z
 .cover-link{padding:0;border:0;border-radius:13px;background:none}.cover-link img{display:block;width:100%;height:125px;border-radius:13px;object-fit:cover}.post-title{padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}.post-copy>span{color:#b9adff!important;font-size:.75rem!important}.post-copy h2{cursor:default!important}@media(max-width:800px){.cover-link img{height:90px}}
 
 /* Opaque editorial theme — accessible warm paper with ladybug red. */
-:root{--ink:#201d19;--text:#201d19;--panel:#fffaf0;--panel-2:#f3eadb;--soft:#f3eadb;--line:#d8cdbc;--cream:#201d19;--muted:#625c54;--orange:#d62828;--orange-2:#b91f24;--shadow:0 14px 34px rgba(55,43,29,.1)}
+:root{--ink:#201d19;--text:#201d19;--page:#f3eee5;--surface:#fffaf0;--input:#fffdf7;--panel:#fffaf0;--panel-2:#f3eadb;--soft:#f3eadb;--line:#d8cdbc;--cream:#201d19;--muted:#625c54;--orange:#d62828;--orange-2:#b91f24;--shadow:0 14px 34px rgba(55,43,29,.1)}
 html,body{background:#f3eee5;color:var(--cream)}
 body,body::before{background:#f3eee5!important}
 .page-shell,main:not(.login-page),.settings-page{background:#f3eee5!important}
@@ -57,9 +57,9 @@ input,textarea,select{accent-color:var(--orange)}
 .public-top{background:#fffaf0!important}.story-body{color:#3f3932!important}.story h1{color:#201d19!important}.story footer{color:#625c54!important}.back{color:#625c54!important}
 .interactions{color:#201d19!important}.interactions h2{color:#201d19!important}.interactions button{background:#fffaf0!important;color:#201d19!important;border-color:#bcae99!important}.interactions button.active,.interactions form>button{background:#d62828!important;color:#fff!important}.interactions input{background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}.reply{color:#625c54!important}
 :is(.search-hero,.voices-panel,.browse-panel,.people-gallery article,.hero-search,.hero-search select,.explore-mode .feed .grid-card){background:#fffaf0!important;color:#201d19!important;border-color:#d8cdbc!important;box-shadow:none!important}.hero-input input{color:#201d19!important}.people-gallery article:hover{background:#f7efe3!important}.explore-mode{background:transparent!important}
-.compose-card .author select,.compose-card .editor .surface{background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}.compose-card .title{color:#201d19!important}.compose-card .title::placeholder{color:#756d63!important}.compose-card .tools,.compose-card footer p,.compose-card .author span{color:#625c54!important}
+html:not([data-theme="dark"]) .compose-card .author select,html:not([data-theme="dark"]) .compose-card .editor .surface{background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}html:not([data-theme="dark"]) .compose-card .title{color:#201d19!important}html:not([data-theme="dark"]) .compose-card .title::placeholder{color:#756d63!important}html:not([data-theme="dark"]) .compose-card .tools,html:not([data-theme="dark"]) .compose-card footer p,html:not([data-theme="dark"]) .compose-card .author span{color:#625c54!important}
 .activity-icon{background:#f2dfda!important;color:#b91f24!important}.day-group article:nth-of-type(4n+2) .activity-icon{background:#e3efe5!important;color:#267a3f!important}.day-group article:nth-of-type(4n+3) .activity-icon{background:#e4e9f7!important;color:#315fb5!important}.day-group article:nth-of-type(4n+4) .activity-icon{background:#f7e9c9!important;color:#9a6500!important}.unread{background:#fff2ee!important}
-.settings-card input,.settings-card textarea,.editor input,.editor textarea,.layout input,.layout textarea,main>section>form input,main>section>form textarea{background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}
+html:not([data-theme="dark"]) :is(.settings-card input,.settings-card textarea,.editor input,.editor textarea,.layout input,.layout textarea,main>section>form input,main>section>form textarea){background:#fffdf7!important;color:#201d19!important;border-color:#cfc2ae!important}
 /* Light-theme contrast guardrails for every active local page. */
 html:not([data-theme="dark"]) :is(.profile-hero,.profile-content>aside,.settings-card,.editor,.compose-card,.connections-workspace,.activity-workspace,.myblugs-workspace,.reader-layout,.panel,.channel-list,.system){color:#201d19!important}
 html:not([data-theme="dark"]) :is(.profile-hero,.profile-content>aside,.settings-card,.editor,.compose-card,.connections-workspace,.activity-workspace,.myblugs-workspace,.reader-layout,.panel,.channel-list,.system) :is(h1,h2,h3,h4,p,b,strong,label,button,a){color:inherit}
@@ -74,7 +74,7 @@ html:not([data-theme="dark"]) :is(input,textarea,select)::placeholder{color:#756
 @media(max-width:1100px){.page-ad-rail{display:none}.connections-workspace,.myblugs-workspace,.activity-workspace{grid-template-columns:minmax(0,1fr) 290px!important}.reader-layout{grid-template-columns:minmax(0,1fr) 285px!important}.reader-main{padding-left:0}}
 @media(max-width:900px){.page-banner{width:100%;margin-top:12px}.reader-layout{display:block!important}.reader-main{padding:0}.connections-workspace{display:block!important}}
 
-html[data-theme="dark"]{--ink:#171716;--text:#f7f0e8;--panel:#242321;--panel-2:#2d2b28;--soft:#34312d;--line:#514c45;--cream:#f7f0e8;--muted:#c1b8ae;--orange:#e33434;--orange-2:#ff4b4b;--shadow:0 14px 34px rgba(0,0,0,.28);color-scheme:dark}
+html[data-theme="dark"]{--ink:#171716;--text:#f7f0e8;--page:#171716;--surface:#242321;--input:#1e1d1b;--panel:#242321;--panel-2:#2d2b28;--soft:#34312d;--line:#514c45;--cream:#f7f0e8;--muted:#c1b8ae;--orange:#e33434;--orange-2:#ff4b4b;--shadow:0 14px 34px rgba(0,0,0,.28);color-scheme:dark}
 html[data-theme="dark"],html[data-theme="dark"] body,html[data-theme="dark"] body::before{background:#171716!important;color:#f7f0e8}
 html[data-theme="dark"] :is(.page-shell,main:not(.login-page),.settings-page,main:not(.login-page)::before,.settings-page::before){background:#171716!important}
 html[data-theme="dark"] :is(.topbar,.surface,.home-revamp,.connections-workspace,.activity-workspace,.myblugs-workspace,.settings-card,.editor,.compose-card,.profile-hero,.join-card,.writer-card,.topic-card,.grid-card,.search-hero,.voices-panel,.browse-panel,.people-gallery article,.hero-search,.hero-search select){background:#242321!important;border-color:#514c45!important;color:#f7f0e8!important;box-shadow:none!important}
@@ -160,3 +160,48 @@ html[data-theme="dark"] :is(.hero-input input,.hero-search input)::placeholder{c
 html[data-theme="dark"] :is(.grid-card,.post-card,.people-gallery article):hover{background:#302e2a!important;border-color:#766d63!important}
 html[data-theme="dark"] .follow{background:#242321!important;color:#ff8a8a!important;border-color:#d95757!important}
 html[data-theme="dark"] .follow:hover{background:#3b2928!important;color:#fff!important;border-color:#ff8a8a!important}
+
+/* Compose and rich-text editor contrast. The editing canvas must always use
+   foreground and background colors from the same theme. */
+html[data-theme="dark"] .compose-card .title{
+  background:#242321!important;
+  color:#f7f0e8!important;
+  caret-color:#fff!important;
+}
+html[data-theme="dark"] .compose-card .title::placeholder{color:#aaa198!important;opacity:1!important}
+html[data-theme="dark"] .compose-card :is(.tools,footer p,.author span){color:#c1b8ae!important}
+html[data-theme="dark"] .compose-card .author select{
+  background:#292724!important;
+  color:#f7f0e8!important;
+  border-color:#5b554d!important;
+}
+html[data-theme="dark"] .compose-card .editor{
+  background:#1e1d1b!important;
+  color:#f7f0e8!important;
+  border-color:#5b554d!important;
+}
+html[data-theme="dark"] .compose-card .editor .toolbar{
+  background:#292724!important;
+  color:#f7f0e8!important;
+  border-color:#5b554d!important;
+}
+html[data-theme="dark"] .compose-card .editor .toolbar :is(button,.image-button){
+  background:#34312d!important;
+  color:#f7f0e8!important;
+  border-color:#6a6259!important;
+}
+html[data-theme="dark"] .compose-card .editor .toolbar :is(button,.image-button):hover{
+  background:#423e39!important;
+  border-color:#8b8176!important;
+}
+html[data-theme="dark"] .compose-card .editor .surface{
+  background:#1e1d1b!important;
+  color:#f7f0e8!important;
+  border-color:#5b554d!important;
+  caret-color:#fff!important;
+}
+html[data-theme="dark"] .compose-card .editor .surface:empty::before{color:#aaa198!important;opacity:1!important}
+html[data-theme="dark"] .compose-card .editor .surface:focus{
+  outline:2px solid rgba(255,138,138,.72)!important;
+  outline-offset:-2px;
+}
