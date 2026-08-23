@@ -6,11 +6,12 @@
       <button :class="{ active: state.bookmarked }" :aria-pressed="state.bookmarked" @click="toggle('bookmarks')">⌑ {{ state.bookmarked ? 'Saved' : 'Save' }} · {{ state.bookmarks }}</button>
       <button @click="share">↗ {{ shareLabel }}</button>
     </div>
-    <form aria-label="Add a comment" @submit.prevent="submitComment"><label class="sr-only" for="new-comment">Write a comment</label><input id="new-comment" v-model="commentBody" maxlength="2000" placeholder="Write a comment" /><button :disabled="!commentBody.trim()">Comment</button></form>
+    <label v-if="!authStore.isAuthenticated.value" class="guest-name">Guest display name<input v-model.trim="guestName" maxlength="40" placeholder="Choose a guest name" /></label>
+    <form aria-label="Add a comment" @submit.prevent="submitComment"><label class="sr-only" for="new-comment">Write a comment</label><input id="new-comment" v-model="commentBody" maxlength="2000" placeholder="Write a comment" /><button :disabled="!commentBody.trim()||(!authStore.isAuthenticated.value&&guestName.length<2)">Comment</button></form>
     <article v-for="comment in comments" :key="comment.id" class="comment">
-      <button class="comment-author" type="button" @click="openProfile(comment.user_id)"><strong>@{{ comment.chatter_name }}</strong></button><p>{{ comment.body }}</p>
+      <button class="comment-author" type="button" :disabled="!comment.user_id" @click="openProfile(comment.user_id)"><strong>{{comment.user_id?'@':''}}{{ comment.chatter_name }}</strong><small v-if="!comment.user_id"> · Guest</small></button><p>{{ comment.body }}</p>
       <button v-if="comment.user_id === currentUserId" @click="removeComment(comment.id)">Delete</button>
-      <div v-for="reply in comment.replies" :key="reply.id" class="reply"><button class="comment-author" type="button" @click="openProfile(reply.user_id)"><strong>@{{ reply.chatter_name }}</strong></button> {{ reply.body }}</div>
+      <div v-for="reply in comment.replies" :key="reply.id" class="reply"><button class="comment-author" type="button" :disabled="!reply.user_id" @click="openProfile(reply.user_id)"><strong>{{reply.user_id?'@':''}}{{ reply.chatter_name }}</strong><small v-if="!reply.user_id"> · Guest</small></button> {{ reply.body }}</div>
       <form :aria-label="`Reply to ${comment.chatter_name}`" @submit.prevent="submitReply(comment.id)"><label class="sr-only" :for="`reply-${comment.id}`">Reply to {{ comment.chatter_name }}</label><input :id="`reply-${comment.id}`" v-model="replyDrafts[comment.id]" maxlength="2000" placeholder="Write a reply" /><button :disabled="!replyDrafts[comment.id]?.trim()">Reply</button></form>
     </article>
   </section>
@@ -20,20 +21,22 @@
 import { reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { authStore } from '../stores/auth';
-import { addComment, addReply, deleteComment, getInteractions, listComments, setInteraction, type Comment, type Interactions } from '../api/social';
+import { addComment, addGuestComment, addGuestReply, addReply, deleteComment, getInteractions, listComments, setInteraction, type Comment, type Interactions } from '../api/social';
 const props = defineProps<{ postId: string }>();
 const state = reactive<Interactions>({ likes: 0, bookmarks: 0, liked: false, bookmarked: false });
 const comments = ref<Comment[]>([]);
 const commentBody = ref('');
+const guestName = ref(sessionStorage.getItem('blugbug-guest-name') || '');
 const replyDrafts = reactive<Record<string, string>>({});
 const shareLabel = ref('Share');
 const currentUserId = authStore.user.value?.id;
 const router = useRouter();
-const openProfile = (userId: string) => router.push(`/user/${userId}`);
+const openProfile = (userId: string|null) => userId&&router.push(`/user/${userId}`);
+const guestToken=async()=>{let token=localStorage.getItem('blugbug-guest-token');if(!token){token=crypto.randomUUID();localStorage.setItem('blugbug-guest-token',token)}const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token));return[...new Uint8Array(bytes)].map(x=>x.toString(16).padStart(2,'0')).join('')};
 const load = async () => { Object.assign(state, await getInteractions(props.postId)); comments.value = (await listComments(props.postId)).comments; };
-const toggle = async (type: 'likes' | 'bookmarks') => { const key = type === 'likes' ? 'liked' : 'bookmarked'; await setInteraction(props.postId, type, !state[key]); await load(); };
-const submitComment = async () => { if (!commentBody.value.trim()) return; await addComment(props.postId, commentBody.value); commentBody.value = ''; await load(); };
-const submitReply = async (id: string) => { const body = replyDrafts[id]?.trim(); if (!body) return; await addReply(id, body); replyDrafts[id] = ''; await load(); };
+const toggle = async (type: 'likes' | 'bookmarks') => {if(!authStore.isAuthenticated.value){window.dispatchEvent(new CustomEvent('blugbug:auth-required'));return}const key = type === 'likes' ? 'liked' : 'bookmarked'; await setInteraction(props.postId, type, !state[key]); await load(); };
+const submitComment = async () => {if(!commentBody.value.trim())return;if(authStore.isAuthenticated.value)await addComment(props.postId,commentBody.value);else{sessionStorage.setItem('blugbug-guest-name',guestName.value);await addGuestComment(props.postId,commentBody.value,guestName.value,await guestToken())}commentBody.value='';await load()};
+const submitReply = async (id: string) => {const body=replyDrafts[id]?.trim();if(!body)return;if(authStore.isAuthenticated.value)await addReply(id,body);else{sessionStorage.setItem('blugbug-guest-name',guestName.value);await addGuestReply(id,body,guestName.value,await guestToken())}replyDrafts[id]='';await load()};
 const removeComment = async (id: string) => { await deleteComment(id); await load(); };
 const share = async () => {
   const url = `${window.location.origin}/blug/${encodeURIComponent(props.postId)}`;
@@ -55,6 +58,7 @@ button { min-height: 44px; padding: 10px 16px; border: 1px solid #59616d; border
 button:hover, button.active, form > button { border-color: var(--orange); background: var(--orange); color: white; }
 button:disabled { border-color: var(--line); background: #252931; color: #8f959e; cursor: not-allowed; }
 input { flex: 1; min-width: 0; padding: 12px 15px; border-radius: 14px; border: 1px solid var(--line); background: #fffdf8; color: var(--ink); font: inherit; }
+.guest-name{display:grid;gap:7px;max-width:360px;margin-top:18px;color:var(--muted);font-size:.78rem;font-weight:800}.guest-name input{width:100%;box-sizing:border-box}
 .comment { border-top: 1px solid var(--line); padding: 22px 0; }
 .comment p { line-height: 1.65; }
 .comment > button { padding: 5px 10px; color: var(--muted); font-size: .72rem; }

@@ -60,7 +60,7 @@ const filteredUsers = computed(() => users.value.filter(person => person.id !== 
 const suggestedUsers = computed(() => users.value.filter(person => person.id !== user.value?.id).slice(0,5));
 const visiblePosts = computed(() => { const term=search.value.trim().toLowerCase(); const filtered=posts.value.filter(post=>(!topicFilter.value||post.categories===topicFilter.value)&&(!term||`${post.title} ${post.categories} ${post.full_name} ${post.chatter_name} ${post.content.replace(/<[^>]*>/g,' ')}`.toLowerCase().includes(term))); return isExplore.value ? filtered : [...filtered].sort((a,b)=>sortMode.value==='title'?a.title.localeCompare(b.title):new Date(b.created_at).getTime()-new Date(a.created_at).getTime()); });
 const clearFilters = () => { search.value=''; topicFilter.value=''; sortMode.value='latest'; };
-const follow = async (id:string) => { const enabled=!followed.value.has(id); await setFollowing(id,enabled); enabled?followed.value.add(id):followed.value.delete(id); followed.value=new Set(followed.value); };
+const follow = async (id:string) => {if(!authStore.isAuthenticated.value){window.dispatchEvent(new CustomEvent('blugbug:auth-required'));return}const enabled=!followed.value.has(id); await setFollowing(id,enabled); enabled?followed.value.add(id):followed.value.delete(id); followed.value=new Set(followed.value); };
 const openConnections = (tab:'followers'|'following') => router.push({ path:'/connections', query:{ tab } });
 const load = async () => { const loaded=(await listPosts(undefined,isExplore.value?undefined:'following')).posts; posts.value=isExplore.value?[...loaded].sort(()=>Math.random()-.5):loaded; if(isExplore.value){users.value=(await listUsers()).users;}else if(user.value){const [own,status,people,following]=await Promise.all([listPosts(user.value.id),getFollowStatus(user.value.id),listUsers(),listConnections(user.value.id,'following')]);users.value=people.users;followed.value=new Set(following.users.map(person=>person.id));profileStats.value={blugs:own.posts.length,followers:status.followers,following:status.followingCount};} };
 onMounted(load);
@@ -236,4 +236,25 @@ watch(() => route.path, load);
 @media(max-width:1120px){.home-revamp{grid-template-columns:minmax(0,1fr) 280px}.left-ad-rail{display:none}}
 @media(max-width:900px){.global-banner{width:100%;margin-top:12px}.header-search{width:min(260px,48%)}.home-revamp{grid-template-columns:1fr}}
 @media(max-width:620px){.header-search{top:24px;right:24px;width:58%;padding:8px 10px}.global-banner{margin-top:0}}
+
+/* Dark mode contrast: keep every Explore surface and its descendants on the
+   same opaque charcoal palette. These live here so scoped light rules cannot
+   override the global theme after component CSS is injected. */
+:global(html[data-theme="dark"] .explore-mode){background:transparent!important;color:var(--text)!important}
+:global(html[data-theme="dark"] .search-hero),
+:global(html[data-theme="dark"] .voices-panel),
+:global(html[data-theme="dark"] .people-gallery article),
+:global(html[data-theme="dark"] .hero-search),
+:global(html[data-theme="dark"] .hero-search select){background:#242321!important;border-color:#5b554d!important;color:#f7f0e8!important;box-shadow:none!important}
+:global(html[data-theme="dark"] .hero-input input){background:transparent!important;color:#f7f0e8!important}
+:global(html[data-theme="dark"] .hero-input input::placeholder){color:#aaa198!important;opacity:1}
+:global(html[data-theme="dark"] .people-gallery article :is(b,small)),
+:global(html[data-theme="dark"] .person-copy){color:#f7f0e8!important}
+:global(html[data-theme="dark"] .people-gallery article small){color:#c1b8ae!important}
+:global(html[data-theme="dark"] .people-gallery article:hover){background:#302e2a!important;border-color:#766d63!important}
+:global(html[data-theme="dark"] .follow){background:#242321!important;color:#ff7777!important;border-color:#ff6868!important}
+:global(html[data-theme="dark"] .follow:hover),
+:global(html[data-theme="dark"] .follow:focus-visible){background:#3b2928!important;color:#fff!important;border-color:#ff8a8a!important}
+:global(html[data-theme="dark"] .search-button){background:#e33434!important;color:#fff!important}
+:global(html[data-theme="dark"] .search-button:hover){background:#ff4b4b!important}
 </style>

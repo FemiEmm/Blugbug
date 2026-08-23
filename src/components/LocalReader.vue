@@ -1,7 +1,6 @@
 <template>
   <div class="page-shell">
-    <NavBar v-if="authStore.isAuthenticated.value" />
-    <header v-else class="public-top"><img src="/brand_logo.svg" alt="Blugbug" /><router-link to="/login">Sign in</router-link></header>
+    <NavBar />
     <AdSlot class="page-banner" placement="banner" />
     <main v-if="post" class="reader">
       <button class="back" @click="router.back()">← Back</button>
@@ -11,8 +10,7 @@
           <div class="story-body"><ParagraphQuestions :html="post.content" :post-id="post.id" :post-owner-id="post.user_id" /></div>
           <footer><span>Published on Blugbug</span><button class="ghost-button" @click="router.push(`/user/${post.user_id}`)">More from this writer</button></footer>
         </article>
-        <LocalInteractions v-if="authStore.isAuthenticated.value" :postId="post.id" />
-        <section v-else class="join-card"><h2>Join the conversation</h2><p>Sign in to like, save, and reply to this blug.</p><router-link to="/login">Sign in to Blugbug</router-link></section></section>
+        <LocalInteractions :postId="post.id" /></section>
         <aside class="reader-rail"><AdSlot placement="sidebar"/><section class="writer-card"><span class="eyebrow">The blugger</span><div><span class="avatar">{{ initials }}</span><p><b>{{post.full_name}}</b><small>@{{post.chatter_name}}</small></p></div><button @click="router.push(`/user/${post.user_id}`)">View profile</button></section><section class="topic-card"><span class="eyebrow">Keep exploring</span><h2>{{post.categories||'Blugs'}}</h2><p>Find more blugs and conversations across Blugbug.</p><button @click="router.push('/blugbugs')">Explore Blugbugs →</button></section><AdSlot placement="sidebar"/></aside>
       </div>
     </main>

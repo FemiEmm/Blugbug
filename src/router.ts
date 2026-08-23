@@ -22,7 +22,7 @@ const routes = [
   { path: '/login', component: LoginPage },
   { path: '/recover-account', component: AccountRecovery },
   { path: '/recover-account/complete', component: AccountRecoveryComplete },
-  { path: '/signup', redirect: '/login' },
+  { path: '/signup', component: () => import('./components/LocalSignup.vue') },
   { path: '/blugpage', redirect: '/blugbugs' },
   { path: '/myblug', component: ChattersPage },
   { path: '/home', name: 'Home', component: HomePage },
@@ -59,8 +59,7 @@ const publicPaths = new Set(['/login', '/recover-account', '/recover-account/com
 
 router.beforeEach(async (to) => {
   const user = await authStore.restore();
-  if (to.path === '/signup') return '/login';
-  const isPublic = publicPaths.has(to.path) || to.path.startsWith('/blug/');
+  const isPublic = publicPaths.has(to.path) || to.path === '/signup' || to.path === '/blugbugs' || to.path.startsWith('/blug/') || to.path.startsWith('/user/');
   if (!isPublic && !user) {
     return { path: '/login', query: { redirect: to.fullPath } };
   }

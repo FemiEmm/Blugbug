@@ -27,7 +27,7 @@
             <textarea :id="`question-${index}`" v-model="questionBody" maxlength="1000" rows="3" placeholder="What would you like the blugger to explain?" required></textarea>
             <div><small>{{ questionBody.length }}/1000</small><button type="submit" :disabled="saving || !questionBody.trim()">Ask question</button></div>
           </form>
-          <p v-else class="sign-in-note"><router-link :to="`/login?redirect=${encodeURIComponent(route.fullPath)}`">Sign in</router-link> to question this paragraph.</p>
+          <p v-else class="sign-in-note"><button type="button" @click="requestAuth">Sign in</button> to question this paragraph.</p>
 
           <div v-if="questionsFor(index).length" class="question-list">
             <article v-for="question in questionsFor(index)" :key="question.id" class="question-item">
@@ -72,6 +72,7 @@ const blocks = computed(() => {
 });
 const isAuthor = computed(() => authStore.user.value?.id === props.postOwnerId || authStore.user.value?.role === 'admin');
 const questionsFor = (index: number) => questions.value.filter((question) => question.paragraph_index === index);
+const requestAuth = () => window.dispatchEvent(new Event('blugbug:auth-required'));
 const initials = (name = 'BB') => name.split(/[ ._-]+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join('').toUpperCase();
 const load = async () => { questions.value = (await listParagraphQuestions(props.postId)).questions; };
 const toggle = (index: number) => { selected.value = selected.value === index ? null : index; questionBody.value = ''; };

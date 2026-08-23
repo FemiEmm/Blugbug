@@ -29,3 +29,12 @@ export const getSession = async () => {
 };
 export const logout = async () => { const { error } = await supabase.auth.signOut(); if (error) throw error; };
 export const loginWithSupabase = async () => ({ user: await loadProfile() });
+export const signup = async (fullName: string, handle: string, email: string, password: string) => {
+  const cleanHandle = handle.trim().replace(/^@/, '');
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim(), password,
+    options: { data: { blugbug_signup: true, full_name: fullName.trim(), chatter_name: cleanHandle } },
+  });
+  if (error) throw error;
+  return { hasSession: Boolean(data.session) };
+};

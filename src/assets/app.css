@@ -147,3 +147,16 @@ html[data-theme="dark"] .home-revamp .header-search input{background:transparent
   html[data-theme="light"] .topbar nav a i{color:#332f2a!important;opacity:1!important}
 }
 .actor-link{width:46px;height:46px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}.actor-link:disabled{cursor:default}.actor-link img{display:block;width:46px;height:46px;border-radius:50%;object-fit:cover}@media(max-width:800px){.actor-link,.actor-link img{width:40px;height:40px}}
+
+/* Final dark-mode accessibility layer. Kept last so legacy light component
+   declarations cannot produce light cards with light text. */
+html[data-theme="dark"] :is(.search-hero,.voices-panel,.browse-panel,.people-gallery article,.hero-search,.hero-search select,.explore-mode .feed .grid-card,.post-card){background:#242321!important;border-color:#5b554d!important;color:#f7f0e8!important;box-shadow:none!important}
+html[data-theme="dark"] :is(.grid-card,.post-card) :is(h2,strong,b,.title-link,.post-author,.profile-link){color:#f7f0e8!important}
+html[data-theme="dark"] :is(.grid-card,.post-card) :is(.excerpt,.grid-excerpt,small,header span){color:#c1b8ae!important}
+html[data-theme="dark"] .people-gallery article :is(.person-copy,b){color:#f7f0e8!important}
+html[data-theme="dark"] .people-gallery article small{color:#c1b8ae!important}
+html[data-theme="dark"] :is(.hero-input input,.hero-search input){background:transparent!important;color:#f7f0e8!important}
+html[data-theme="dark"] :is(.hero-input input,.hero-search input)::placeholder{color:#aaa198!important;opacity:1!important}
+html[data-theme="dark"] :is(.grid-card,.post-card,.people-gallery article):hover{background:#302e2a!important;border-color:#766d63!important}
+html[data-theme="dark"] .follow{background:#242321!important;color:#ff8a8a!important;border-color:#d95757!important}
+html[data-theme="dark"] .follow:hover{background:#3b2928!important;color:#fff!important;border-color:#ff8a8a!important}
