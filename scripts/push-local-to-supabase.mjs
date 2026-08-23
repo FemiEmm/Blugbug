@@ -128,7 +128,10 @@ const safeUsername = (value, id) => {
 const users = local.users.map((row) => {
   const profileFile = localAsset(row.profile_image_url); const headerFile = localAsset(row.header_image_url);
   return {
-    id: row.id, auth_user_id: null, username: safeUsername(row.username || row.chatter_name, row.id), chatter_name: safeHandle(row.chatter_name, row.id), full_name: String(row.full_name || row.chatter_name || 'Blugbug user').slice(0, 100),
+    // Never send auth_user_id from the local database. Supabase Auth owns that
+    // link, and including null here would detach recovered and admin accounts
+    // every time this migration script is run.
+    id: row.id, username: safeUsername(row.username || row.chatter_name, row.id), chatter_name: safeHandle(row.chatter_name, row.id), full_name: String(row.full_name || row.chatter_name || 'Blugbug user').slice(0, 100),
     about_me: String(row.about_me || '').slice(0, 500),
     profile_image_url: profileFile ? planAsset(row.profile_image_url, 'blugbug_profiles', `${safeSegment(row.id)}/${path.basename(profileFile)}`) : row.profile_image_url,
     header_image_url: headerFile ? planAsset(row.header_image_url, 'blugbug_headers', `${safeSegment(row.id)}/${path.basename(headerFile)}`) : row.header_image_url,
