@@ -36,5 +36,5 @@ const adAfter = computed(() => {
 </script>
 
 <style scoped>
-.story-chunk :deep(figure){margin:30px 0}.story-chunk :deep(img){display:block;width:100%;max-height:680px;border-radius:16px;object-fit:contain;background:var(--surface)}.story-chunk :deep(figcaption){margin-top:9px;color:var(--muted);font:500 .8rem/1.5 Inter,sans-serif;text-align:center}
+.story-chunk :deep(b),.story-chunk :deep(strong){font-weight:800!important}.story-chunk :deep(i),.story-chunk :deep(em){font-style:italic!important}.story-chunk :deep(ul){padding-left:28px;list-style:disc!important}.story-chunk :deep(li){display:list-item;margin:.35em 0}.story-chunk :deep(figure){margin:30px 0}.story-chunk :deep(img){display:block;width:100%;max-height:680px;border-radius:16px;object-fit:contain;background:var(--surface)}.story-chunk :deep(figcaption){margin-top:9px;color:var(--muted);font:500 .8rem/1.5 Inter,sans-serif;text-align:center}
 </style>
