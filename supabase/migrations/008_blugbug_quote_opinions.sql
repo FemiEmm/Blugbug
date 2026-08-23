@@ -9,6 +9,14 @@ alter table public.blugbug_comments
   add constraint blugbug_comments_quote_length
   check (quote_text is null or char_length(btrim(quote_text)) between 1 and 300);
 
+alter table public.blugbug_notifications
+  drop constraint if exists blugbug_notifications_type_check;
+alter table public.blugbug_notifications
+  add constraint blugbug_notifications_type_check check (type in (
+    'follow', 'like', 'comment', 'reply', 'share', 'new_post', 'quote',
+    'paragraph_question', 'paragraph_answer', 'mention', 'system'
+  ));
+
 -- A quoted opinion remains a normal comment, but its notification tells the
 -- blug owner that a specific part of their writing was quoted.
 create or replace function blugbug_private.notify_social_action()
