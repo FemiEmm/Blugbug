@@ -5,6 +5,7 @@ export async function listAdminPosts(){const{data,error}=await supabase.from('bl
 export async function listAdminNotifications(){const{data,error}=await supabase.from('blugbug_notifications').select('*').order('created_at',{ascending:false});throwIf(error);return{notifications:(data??[]).map((x:any)=>({...x,read:Boolean(x.read)})) as LocalNotification[]}}
 export async function adminDeleteUser(id:string){const{error}=await supabase.from('blugbug_users').delete().eq('id',id);throwIf(error)}
 export async function adminDeleteNotification(id:string){const{error}=await supabase.from('blugbug_notifications').delete().eq('id',id);throwIf(error)}
+export async function adminApproveRecovery(id:string){const{error}=await supabase.from('blugbug_users').update({recovery_status:'approved',recovery_approved_at:new Date().toISOString()}).eq('id',id);throwIf(error)}
 export type AdminChannel=LocalUser&{post_count:number;posts:LocalPost[]};
 export async function listAdminChannels(){const{data,error}=await supabase.from('blugbug_users').select('*').eq('account_type','channel').order('full_name');throwIf(error);const channels:AdminChannel[]=await Promise.all((data??[]).map(async row=>{const{posts}=await listPostsFor(row.id);return{...mapUser(row),post_count:posts.length,posts}}));return{channels}}
 async function listPostsFor(id:string){const{data,error}=await supabase.from('blugbug_posts').select(postSelect).eq('user_id',id).order('created_at',{ascending:false});throwIf(error);return{posts:(data??[]).map(mapPost)}}

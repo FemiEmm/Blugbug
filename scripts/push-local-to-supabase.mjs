@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { execFileSync } from 'node:child_process';
+import { gunzipSync } from 'node:zlib';
 
 const root = path.resolve(import.meta.dirname, '..');
 const dbPath = path.join(root, 'data', 'blugbug.sqlite');
@@ -31,6 +32,26 @@ const iso = (value) => {
 };
 const strip = (html = '') => String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 const safeSegment = (value) => encodeURIComponent(String(value).replaceAll('/', '_'));
+const legacySecrets = new Map();
+const oldDump = path.join(root, 'database old', 'db_cluster-05-12-2024@07-58-13.backup.gz');
+if (fs.existsSync(oldDump)) {
+  const sql = gunzipSync(fs.readFileSync(oldDump)).toString('utf8');
+  const marker = 'COPY public.users (id, full_name, chatter_name, email, password, about_me, followers, following, likes, bookmarks, posts, "bookmarksList", profile_image_url, header_image_url, followers_id, following_id, checkmark_url, interest_id, secret_question, secret_answer) FROM stdin;';
+  const start = sql.indexOf(marker);
+  if (start >= 0) {
+    const rows = sql.slice(start + marker.length).split('\n');
+    for (const line of rows) {
+      if (line === '\\.') break;
+      if (!line.trim()) continue;
+      const columns = line.split('\t').map(value => value === '\\N' ? '' : value.replaceAll('\\t', '\t').replaceAll('\\n', '\n').replaceAll('\\\\', '\\'));
+      const [id, , , email, , , , , , , , , , , , , , , question, answer] = columns;
+      if (id && email && question && answer) {
+        const normalized = answer.toLowerCase().replace(/[^a-z0-9]/g, '');
+        legacySecrets.set(id, { legacy_email: email, secret_question: question, secret_answer_hash: `sha256:${crypto.createHash('sha256').update(normalized).digest('hex')}` });
+      }
+    }
+  }
+}
 const headers = { apikey: secret, Authorization: `Bearer ${secret}` };
 const request = async (pathname, options = {}) => {
   const response = await fetch(`${supabaseUrl}${pathname}`, { ...options, headers: { ...headers, ...(options.headers || {}) } });
@@ -115,7 +136,15 @@ const users = local.users.map((row) => {
   };
 });
 const legacyAccounts = local.users.filter((row) => row.email && !row.email.endsWith('@sample.blugbug') && !row.email.endsWith('@blugbug.local'))
-  .map((row) => ({ user_id: row.id, legacy_email: row.email }));
+  .map((row) => {
+    const recovery = legacySecrets.get(row.id);
+    return {
+      user_id: row.id,
+      legacy_email: recovery?.legacy_email || row.email,
+      secret_question: recovery?.secret_question || null,
+      secret_answer_hash: recovery?.secret_answer_hash || null,
+    };
+  });
 const posts = local.posts.map((row) => {
   const remoteId = postId.get(row.id); const coverFile = localAsset(row.header_image_url);
   const cover = coverFile ? planAsset(row.header_image_url, 'blugbug_post_covers', `${safeSegment(row.user_id)}/${remoteId}/${path.basename(coverFile)}`) : row.header_image_url;

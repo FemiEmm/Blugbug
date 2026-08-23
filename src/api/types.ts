@@ -8,6 +8,9 @@ export interface LocalUser {
   profile_image_url: string | null;
   header_image_url: string | null;
   role: 'user' | 'admin';
+  recovery_status?: 'approved' | 'pending';
+  recovery_requested_at?: string | null;
+  recovery_approved_at?: string | null;
   created_at: string;
   updated_at: string;
 }

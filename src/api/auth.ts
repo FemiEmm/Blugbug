@@ -5,7 +5,7 @@ const profileToUser = (profile: any, email = '', isAdmin = false): LocalUser => 
   id: profile.id, username: profile.username, email, full_name: profile.full_name,
   chatter_name: profile.chatter_name, about_me: profile.about_me || '',
   profile_image_url: profile.profile_image_url, header_image_url: profile.header_image_url,
-  role: isAdmin ? 'admin' : 'user', created_at: profile.created_at, updated_at: profile.updated_at,
+  role: isAdmin ? 'admin' : 'user', recovery_status:profile.recovery_status||'approved',recovery_requested_at:profile.recovery_requested_at,recovery_approved_at:profile.recovery_approved_at,created_at: profile.created_at, updated_at: profile.updated_at,
 });
 
 const loadProfile = async () => {
