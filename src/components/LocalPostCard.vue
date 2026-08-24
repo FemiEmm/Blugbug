@@ -1,40 +1,496 @@
 <template>
   <article v-if="gridMode" class="grid-card">
-    <div class="grid-meta"><button class="topic" @click="open">{{ post.categories || 'General' }}</button><span>{{ timeAgo }}</span></div>
-    <h2><button class="title-link" @click="open">{{ post.title }}</button></h2>
-    <button class="image-link" :aria-label="`Read ${post.title}`" @click="open"><img class="grid-image" :src="coverImage" :alt="post.header_image_url ? `Cover image for ${post.title}` : `Blugbug artwork for ${post.title}`" /></button>
+    <div class="grid-meta">
+      <button class="topic" @click="open">{{ post.categories || 'General' }}</button
+      ><span>{{ timeAgo }}</span>
+    </div>
+    <h2>
+      <button class="title-link" @click="open">{{ post.title }}</button>
+    </h2>
+    <button class="image-link" :aria-label="`Read ${post.title}`" @click="open">
+      <img
+        class="grid-image"
+        :src="coverImage"
+        :alt="
+          post.header_image_url
+            ? `Cover image for ${post.title}`
+            : `Blugbug artwork for ${post.title}`
+        "
+      />
+    </button>
     <p class="grid-excerpt">{{ gridExcerpt }}</p>
-    <button class="grid-author profile-link" type="button" @click="openAuthor"><img :src="authorImage" :alt="`${post.full_name || 'Blugger'} profile picture`" /><span><b>{{ post.full_name || 'Local Administrator' }}</b><small>@{{ post.chatter_name || 'admin' }}</small></span></button>
-    <footer><button :class="{active:state.liked}" @click="toggle('likes')">♥ {{ state.likes }}</button><button @click="open">◯ Reply</button><button :class="{active:state.bookmarked}" @click="toggle('bookmarks')">◆ Save</button><button class="read" @click="open">Read →</button></footer>
+    <button class="grid-author profile-link" type="button" @click="openAuthor">
+      <img :src="authorImage" :alt="`${post.full_name || 'Blugger'} profile picture`" /><span
+        ><b>{{ post.full_name || 'Local Administrator' }}</b
+        ><small>@{{ post.chatter_name || 'admin' }}</small></span
+      >
+    </button>
+    <footer>
+      <button :class="{ active: state.liked }" @click="toggle('likes')">♥ {{ state.likes }}</button
+      ><button @click="open">◯ Reply</button
+      ><span class="view-count" :aria-label="`${post.view_count} views`"
+        >◉ {{ post.view_count }}</span
+      ><button :class="{ active: state.bookmarked }" @click="toggle('bookmarks')">◆ Save</button
+      ><button class="read" @click="open">Read →</button>
+    </footer>
   </article>
   <article v-else class="post-card">
-    <button class="author-photo-link" type="button" :aria-label="`View ${post.full_name || 'blugger'} profile`" @click="openAuthor"><img class="author-photo" :src="authorImage" :alt="`${post.full_name || 'Blugger'} profile picture`" /></button>
-    <div class="post-content"><header><button class="post-author profile-link" type="button" @click="openAuthor"><strong>{{ post.full_name || 'Local Administrator' }}</strong><span>@{{ post.chatter_name || 'admin' }} · {{ timeAgo }}</span></button><button aria-label="Blug menu">•••</button></header><button class="topic" @click="open">{{ post.categories || 'General' }}</button><h2><button class="title-link" @click="open">{{ post.title }}</button></h2><p class="excerpt">{{ excerpt }}</p><button class="image-link" :aria-label="`Read ${post.title}`" @click="open"><img class="post-image" :src="coverImage" :alt="post.header_image_url ? `Cover image for ${post.title}` : `Blugbug artwork for ${post.title}`" /></button><footer><button :class="{active:state.liked}" :aria-pressed="state.liked" @click="toggle('likes')">♥ {{ state.likes }}</button><button @click="open">◯ Reply</button><button :class="{active:state.bookmarked}" :aria-pressed="state.bookmarked" @click="toggle('bookmarks')">◆ {{ state.bookmarked ? 'Saved' : 'Save' }}</button><button class="read" @click="open">Read blug →</button></footer></div>
+    <button
+      class="author-photo-link"
+      type="button"
+      :aria-label="`View ${post.full_name || 'blugger'} profile`"
+      @click="openAuthor"
+    >
+      <img
+        class="author-photo"
+        :src="authorImage"
+        :alt="`${post.full_name || 'Blugger'} profile picture`"
+      />
+    </button>
+    <div class="post-content">
+      <header>
+        <button class="post-author profile-link" type="button" @click="openAuthor">
+          <strong>{{ post.full_name || 'Local Administrator' }}</strong
+          ><span>@{{ post.chatter_name || 'admin' }} · {{ timeAgo }}</span></button
+        ><button aria-label="Blug menu">•••</button>
+      </header>
+      <button class="topic" @click="open">{{ post.categories || 'General' }}</button>
+      <h2>
+        <button class="title-link" @click="open">{{ post.title }}</button>
+      </h2>
+      <p class="excerpt">{{ excerpt }}</p>
+      <button class="image-link" :aria-label="`Read ${post.title}`" @click="open">
+        <img
+          class="post-image"
+          :src="coverImage"
+          :alt="
+            post.header_image_url
+              ? `Cover image for ${post.title}`
+              : `Blugbug artwork for ${post.title}`
+          "
+        />
+      </button>
+      <footer>
+        <button
+          :class="{ active: state.liked }"
+          :aria-pressed="state.liked"
+          @click="toggle('likes')"
+        >
+          ♥ {{ state.likes }}</button
+        ><button @click="open">◯ Reply</button
+        ><span class="view-count" :aria-label="`${post.view_count} views`"
+          >◉ {{ post.view_count }} views</span
+        ><button
+          :class="{ active: state.bookmarked }"
+          :aria-pressed="state.bookmarked"
+          @click="toggle('bookmarks')"
+        >
+          ◆ {{ state.bookmarked ? 'Saved' : 'Save' }}</button
+        ><button class="read" @click="open">Read blug →</button>
+      </footer>
+    </div>
   </article>
 </template>
 <script setup lang="ts">
-import{computed,onMounted,reactive}from'vue';import{useRouter}from'vue-router';import type{LocalPost}from'../api/types';import{getInteractions,setInteraction}from'../api/social';import{authStore}from'../stores/auth';
-const props=withDefaults(defineProps<{post:LocalPost;gridMode?:boolean}>(),{gridMode:false}),router=useRouter(),state=reactive({likes:0,bookmarks:0,liked:false,bookmarked:false});
-const plainText=computed(()=>props.post.content.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim());
-const excerpt=computed(()=>plainText.value.slice(0,220)+(plainText.value.length>220?'…':''));
-const gridExcerpt=computed(()=>plainText.value.slice(0,180)+(plainText.value.length>180?'…':''));
-const authorImage=computed(()=>props.post.profile_image_url||'/Default_pfp.svg');const hashCode=(value:string)=>[...value].reduce((total,char)=>total+char.charCodeAt(0),0);const coverImage=computed(()=>props.post.header_image_url||(hashCode(props.post.id)%2?'/blug_default.png':'/blug_default_2.webp'));const timeAgo=computed(()=>{const elapsed=Math.max(0,Date.now()-new Date(props.post.created_at).getTime());const hours=Math.max(1,Math.floor(elapsed/36e5));const days=Math.max(1,Math.floor(hours/24));return hours<24?`${hours} ${hours===1?'hour':'hours'} ago`:`${days} ${days===1?'day':'days'} ago`});const open=()=>router.push({name:'SharedBlug',params:{blogId:props.post.id}});const openAuthor=()=>router.push(`/user/${props.post.user_id}`);const load=async()=>Object.assign(state,await getInteractions(props.post.id));const toggle=async(type:'likes'|'bookmarks')=>{if(!authStore.user.value){window.dispatchEvent(new Event('blugbug:auth-required'));return}const key=type==='likes'?'liked':'bookmarked';await setInteraction(props.post.id,type,!state[key]);await load()};onMounted(load);
+import { computed, onMounted, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import type { LocalPost } from '../api/types'
+import { getInteractions, setInteraction } from '../api/social'
+import { authStore } from '../stores/auth'
+const props = withDefaults(defineProps<{ post: LocalPost; gridMode?: boolean }>(), {
+    gridMode: false
+  }),
+  router = useRouter(),
+  state = reactive({ likes: 0, bookmarks: 0, liked: false, bookmarked: false })
+const plainText = computed(() =>
+  props.post.content
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+)
+const excerpt = computed(
+  () => plainText.value.slice(0, 220) + (plainText.value.length > 220 ? '…' : '')
+)
+const gridExcerpt = computed(
+  () => plainText.value.slice(0, 180) + (plainText.value.length > 180 ? '…' : '')
+)
+const authorImage = computed(() => props.post.profile_image_url || '/Default_pfp.svg')
+const hashCode = (value: string) =>
+  [...value].reduce((total, char) => total + char.charCodeAt(0), 0)
+const coverImage = computed(
+  () =>
+    props.post.header_image_url ||
+    (hashCode(props.post.id) % 2 ? '/blug_default.png' : '/blug_default_2.webp')
+)
+const timeAgo = computed(() => {
+  const elapsed = Math.max(0, Date.now() - new Date(props.post.created_at).getTime())
+  const hours = Math.max(1, Math.floor(elapsed / 36e5))
+  const days = Math.max(1, Math.floor(hours / 24))
+  return hours < 24
+    ? `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`
+    : `${days} ${days === 1 ? 'day' : 'days'} ago`
+})
+const open = () => router.push({ name: 'SharedBlug', params: { blogId: props.post.id } })
+const openAuthor = () => router.push(`/user/${props.post.user_id}`)
+const load = async () => Object.assign(state, await getInteractions(props.post.id))
+const toggle = async (type: 'likes' | 'bookmarks') => {
+  if (!authStore.user.value) {
+    window.dispatchEvent(new Event('blugbug:auth-required'))
+    return
+  }
+  const key = type === 'likes' ? 'liked' : 'bookmarked'
+  await setInteraction(props.post.id, type, !state[key])
+  await load()
+}
+onMounted(load)
 </script>
 <style scoped>
-.topic{padding:4px 8px;border:1px solid rgba(253,102,47,.42);border-radius:999px;background:none;color:var(--orange);font-size:.67rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;cursor:pointer}.read{color:var(--orange)!important;font-weight:900}.post-card{display:grid;grid-template-columns:46px minmax(0,1fr);gap:12px;padding:18px;border-bottom:1px solid var(--line)}.post-card:hover,.grid-card:hover{background:#1b1f25}.author-photo{width:46px;height:46px;border-radius:50%;object-fit:cover}.post-content{min-width:0}.post-content header{display:flex;justify-content:space-between}.post-content header div{display:flex;gap:6px;min-width:0}.post-content header span{overflow:hidden;color:var(--muted);font-size:.82rem;text-overflow:ellipsis;white-space:nowrap}.post-content header>button{border:0;background:none;color:var(--muted)}.post-content .topic{margin:11px 0 7px}.post-content h2,.grid-card h2{color:#f4eee6;font-family:Georgia,serif;cursor:pointer}.post-content h2{margin:0 0 8px;font-size:1.28rem}.excerpt{margin:0;color:#b4b8bf;line-height:1.58;font-size:.9rem;cursor:pointer}.post-image{display:block;width:100%;max-height:390px;margin-top:14px;border:1px solid var(--line);border-radius:14px;object-fit:cover;cursor:pointer}.post-content footer,.grid-card footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px}.post-content footer button,.grid-card footer button{padding:6px 5px;border:0;background:none;color:var(--muted);font-size:.75rem;cursor:pointer}.post-content footer button:hover,.post-content footer button.active,.grid-card footer button:hover,.grid-card footer button.active{color:var(--orange)}
-.title-link,.image-link{display:block;width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}.image-link{border-radius:14px}.image-link .post-image,.image-link .grid-image{pointer-events:none}.title-link:hover{text-decoration:underline;text-underline-offset:4px}
-.grid-card{height:100%;display:flex;flex-direction:column;padding:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}.grid-meta{display:flex;align-items:center;justify-content:space-between}.grid-meta span{color:var(--muted);font-size:.72rem}.grid-card h2{min-height:3.15em;margin:13px 0 14px;font-size:1.32rem;line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.grid-image{display:block;width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:12px;object-fit:cover;cursor:pointer}.grid-excerpt{min-height:7.2em;margin:14px 0;color:#b4b8bf;line-height:1.5;font-size:.86rem;cursor:pointer;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}.grid-author{display:flex;align-items:center;gap:9px;margin-top:auto;padding-top:13px;border-top:1px solid var(--line)}.grid-author img{width:34px;height:34px;border-radius:50%;object-fit:cover}.grid-author div{display:grid}.grid-author b{font-size:.78rem}.grid-author small{color:var(--muted);font-size:.69rem}
-.profile-link,.author-photo-link{padding:0;border:0;background:none;color:inherit;cursor:pointer}.profile-link{text-align:left}.profile-link:hover strong,.profile-link:hover b{text-decoration:underline;text-underline-offset:3px}.author-photo-link{align-self:start;border-radius:50%}.author-photo-link .author-photo{display:block}.post-author{display:flex;gap:6px;min-width:0}.grid-author{width:100%;text-align:left}.grid-author>span{display:grid}
-@media(max-width:520px){.post-card{grid-template-columns:38px minmax(0,1fr);padding:15px 12px}.author-photo{width:38px;height:38px}.post-content header div{display:block}.post-content header span{display:block}.grid-card h2{min-height:auto}.grid-excerpt{min-height:auto}}
-.topic{border-color:rgba(107,80,246,.55)}
-.topic{border-color:#d62828;color:#b91f24}.post-card:hover,.grid-card:hover{background:#f7efe3}.post-content h2,.grid-card h2{color:#201d19}.excerpt,.grid-excerpt{color:#625c54}.post-content header span,.grid-meta span,.grid-author small{color:#625c54}.post-content footer button,.grid-card footer button{color:#625c54}.grid-card{background:#fffaf0}.read,.post-content footer button:hover,.post-content footer button.active,.grid-card footer button:hover,.grid-card footer button.active{color:#b91f24!important}
-:global(html[data-theme="dark"] .grid-card),
-:global(html[data-theme="dark"] .post-card){background:#242321!important;border-color:#514c45!important;color:#f7f0e8!important}
-:global(html[data-theme="dark"] .grid-card:hover),
-:global(html[data-theme="dark"] .post-card:hover){background:#302e2a!important;border-color:#766d63!important}
-:global(html[data-theme="dark"] :is(.post-content h2,.grid-card h2,.title-link,.grid-author b,.post-author strong)){color:#f7f0e8!important}
-:global(html[data-theme="dark"] :is(.excerpt,.grid-excerpt,.post-content header span,.grid-meta span,.grid-author small)){color:#c1b8ae!important}
-:global(html[data-theme="dark"] :is(.post-content footer button,.grid-card footer button)){color:#d5ccc2!important}
-:global(html[data-theme="dark"] .topic){color:#ff7777!important;border-color:#d95757!important}
-:global(html[data-theme="dark"] :is(.read,.post-content footer button:hover,.post-content footer button.active,.grid-card footer button:hover,.grid-card footer button.active)){color:#ff8a8a!important}
+.topic {
+  padding: 4px 8px;
+  border: 1px solid rgba(253, 102, 47, 0.42);
+  border-radius: 999px;
+  background: none;
+  color: var(--orange);
+  font-size: 0.67rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+}
+.read {
+  color: var(--orange) !important;
+  font-weight: 900;
+}
+.post-card {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 12px;
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.post-card:hover,
+.grid-card:hover {
+  background: #1b1f25;
+}
+.author-photo {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.post-content {
+  min-width: 0;
+}
+.post-content header {
+  display: flex;
+  justify-content: space-between;
+}
+.post-content header div {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.post-content header span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.post-content header > button {
+  border: 0;
+  background: none;
+  color: var(--muted);
+}
+.post-content .topic {
+  margin: 11px 0 7px;
+}
+.post-content h2,
+.grid-card h2 {
+  color: #f4eee6;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+.post-content h2 {
+  margin: 0 0 8px;
+  font-size: 1.28rem;
+}
+.excerpt {
+  margin: 0;
+  color: #b4b8bf;
+  line-height: 1.58;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.post-image {
+  display: block;
+  width: 100%;
+  max-height: 390px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  object-fit: cover;
+  cursor: pointer;
+}
+.post-content footer,
+.grid-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.post-content footer button,
+.grid-card footer button {
+  padding: 6px 5px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.view-count {
+  padding: 6px 5px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.post-content footer button:hover,
+.post-content footer button.active,
+.grid-card footer button:hover,
+.grid-card footer button.active {
+  color: var(--orange);
+}
+.title-link,
+.image-link {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.image-link {
+  border-radius: 14px;
+}
+.image-link .post-image,
+.image-link .grid-image {
+  pointer-events: none;
+}
+.title-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.grid-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+}
+.grid-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.grid-meta span {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.grid-card h2 {
+  min-height: 3.15em;
+  margin: 13px 0 14px;
+  font-size: 1.32rem;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.grid-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: pointer;
+}
+.grid-excerpt {
+  min-height: 7.2em;
+  margin: 14px 0;
+  color: #b4b8bf;
+  line-height: 1.5;
+  font-size: 0.86rem;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+}
+.grid-author {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: auto;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+.grid-author img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.grid-author div {
+  display: grid;
+}
+.grid-author b {
+  font-size: 0.78rem;
+}
+.grid-author small {
+  color: var(--muted);
+  font-size: 0.69rem;
+}
+.profile-link,
+.author-photo-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.profile-link {
+  text-align: left;
+}
+.profile-link:hover strong,
+.profile-link:hover b {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.author-photo-link {
+  align-self: start;
+  border-radius: 50%;
+}
+.author-photo-link .author-photo {
+  display: block;
+}
+.post-author {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.grid-author {
+  width: 100%;
+  text-align: left;
+}
+.grid-author > span {
+  display: grid;
+}
+@media (max-width: 520px) {
+  .post-card {
+    grid-template-columns: 38px minmax(0, 1fr);
+    padding: 15px 12px;
+  }
+  .author-photo {
+    width: 38px;
+    height: 38px;
+  }
+  .post-content header div {
+    display: block;
+  }
+  .post-content header span {
+    display: block;
+  }
+  .grid-card h2 {
+    min-height: auto;
+  }
+  .grid-excerpt {
+    min-height: auto;
+  }
+}
+.topic {
+  border-color: rgba(107, 80, 246, 0.55);
+}
+.topic {
+  border-color: #d62828;
+  color: #b91f24;
+}
+.post-card:hover,
+.grid-card:hover {
+  background: #f7efe3;
+}
+.post-content h2,
+.grid-card h2 {
+  color: #201d19;
+}
+.excerpt,
+.grid-excerpt {
+  color: #625c54;
+}
+.post-content header span,
+.grid-meta span,
+.grid-author small {
+  color: #625c54;
+}
+.post-content footer button,
+.grid-card footer button {
+  color: #625c54;
+}
+.grid-card {
+  background: #fffaf0;
+}
+.read,
+.post-content footer button:hover,
+.post-content footer button.active,
+.grid-card footer button:hover,
+.grid-card footer button.active {
+  color: #b91f24 !important;
+}
+:global(html[data-theme='dark'] .grid-card),
+:global(html[data-theme='dark'] .post-card) {
+  background: #242321 !important;
+  border-color: #514c45 !important;
+  color: #f7f0e8 !important;
+}
+:global(html[data-theme='dark'] .grid-card:hover),
+:global(html[data-theme='dark'] .post-card:hover) {
+  background: #302e2a !important;
+  border-color: #766d63 !important;
+}
+:global(
+  html[data-theme='dark']
+    :is(.post-content h2, .grid-card h2, .title-link, .grid-author b, .post-author strong)
+) {
+  color: #f7f0e8 !important;
+}
+:global(
+  html[data-theme='dark']
+    :is(.excerpt, .grid-excerpt, .post-content header span, .grid-meta span, .grid-author small)
+) {
+  color: #c1b8ae !important;
+}
+:global(html[data-theme='dark'] :is(.post-content footer button, .grid-card footer button)) {
+  color: #d5ccc2 !important;
+}
+:global(html[data-theme='dark'] .topic) {
+  color: #ff7777 !important;
+  border-color: #d95757 !important;
+}
+:global(
+  html[data-theme='dark']
+    :is(
+      .read,
+      .post-content footer button:hover,
+      .post-content footer button.active,
+      .grid-card footer button:hover,
+      .grid-card footer button.active
+    )
+) {
+  color: #ff8a8a !important;
+}
 </style>

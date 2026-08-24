@@ -23,6 +23,7 @@ data/uploads/*
 data/import-backups/
 data/import-staging/
 data/import-reports/
+data/import-inbox/
 data/supabase-push-backups/
 data/supabase-push-staging/
 data/supabase-push-reports/

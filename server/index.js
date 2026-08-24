@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, uploadsDir } from './db.js';
+import { dataDir, db, uploadsDir } from './db.js';
 import { installFeatureRoutes } from './feature-routes.js';
 import { renderPostPreview } from './social-preview.js';
 import { sanitizePostHtml } from './content.js';
@@ -183,7 +183,7 @@ app.delete('/api/posts/:id', requireSession, (req, res) => {
   res.status(204).end();
 });
 
-installFeatureRoutes(app, { db, uploadsDir, requireSession });
+installFeatureRoutes(app, { db, dataDir, uploadsDir, requireSession });
 
 app.use((error, _req, res, _next) => {
   console.error(error);
