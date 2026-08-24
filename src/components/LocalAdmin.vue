@@ -164,7 +164,13 @@
                 </button>
               </div>
             </div>
-            <label>Topic<input v-model="draft.topic" maxlength="80" /></label
+            <label
+              >Topic<select v-model="draft.topic">
+                <option value="" disabled>Choose topic</option>
+                <option v-for="topic in topicOptions" :key="topic" :value="topic">
+                  {{ topic }}
+                </option>
+              </select></label
             ><label>Title<input v-model="draft.title" maxlength="180" /></label>
             <div class="draft-cover">
               <img v-if="draft.cover_image_url" :src="draft.cover_image_url" alt="Draft cover" />
@@ -296,10 +302,12 @@
               </div>
               <label>Title<input v-model="postEditor.title" maxlength="180" required /></label
               ><label
-                >Topic<input
-                  v-model="postEditor.categories"
-                  maxlength="80"
-                  placeholder="History, Sports, Culture…" /></label
+                >Topic<select v-model="postEditor.categories" required>
+                  <option value="" disabled>Choose topic</option>
+                  <option v-for="topic in topicOptions" :key="topic" :value="topic">
+                    {{ topic }}
+                  </option>
+                </select></label
               ><label
                 >Blug text<textarea v-model="postEditor.content" rows="12" required></textarea>
               </label>
@@ -423,6 +431,7 @@ import {
   type ImportScan
 } from '../api/import-queue'
 import { uploadImage } from '../api/uploads'
+import { fallbackTopics, listTopics } from '../api/topics'
 import { authStore } from '../stores/auth'
 import type { LocalPost, LocalUser } from '../api/types'
 import type { LocalNotification } from '../api/notifications'
@@ -434,6 +443,7 @@ const overview = reactive({ users: 0, posts: 0, notifications: 0, supportCases: 
   drafts = ref<ImportDraft[]>([]),
   folderDrafts = ref<ImportDraft[]>([]),
   folderImportErrors = ref<string[]>([]),
+  topicOptions = ref([...fallbackTopics]),
   importScan = ref<ImportScan | null>(null),
   selected = ref<AdminChannel | null>(null),
   tab = ref<'imports' | 'channels' | 'users' | 'notifications'>(
@@ -617,6 +627,11 @@ const selectChannel = (c: AdminChannel) => {
   postEditor.value = null
 }
 const load = async (keep?: string) => {
+  try {
+    topicOptions.value = await listTopics()
+  } catch {
+    topicOptions.value = [...fallbackTopics]
+  }
   Object.assign(overview, await getAdminOverview())
   channels.value = (await listAdminChannels()).channels
   users.value = (await listAdminUsers()).users
@@ -1176,6 +1191,14 @@ select {
   color: var(--text);
   padding: 12px;
   font: inherit;
+}
+select {
+  appearance: none;
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23645d55' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 12px 8px;
 }
 .import-list {
   display: grid;
